@@ -1,0 +1,489 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-primary: #090d16;
+    --bg-surface: #0f172a;
+    --card-bg: rgba(15, 23, 42, 0.75);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --accent-indigo: #6366f1;
+    --accent-emerald: #10b981;
+    --accent-amber: #f59e0b;
+    --accent-rose: #f43f5e;
+  }
+
+  html.light,
+  [data-theme='light'] {
+    --bg-primary: #f8fafc;
+    --bg-surface: #ffffff;
+    --card-bg: #ffffff;
+    --card-border: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #475569;
+    --accent-indigo: #4f46e5;
+    --accent-emerald: #059669;
+    --accent-amber: #d97706;
+    --accent-rose: #e11d48;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Plus Jakarta Sans', 'Outfit', 'Inter', 'Noto Sans Tamil', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow-x: hidden;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+}
+
+/* =====================================================================
+   GLASSMORPHISM & THEMED PANELS
+   ===================================================================== */
+.glass-panel {
+  background: var(--card-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+}
+
+html.light .glass-panel,
+[data-theme='light'] .glass-panel {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(15, 23, 42, 0.03) !important;
+}
+
+.glass-panel-hover {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5), 0 0 15px rgba(99, 102, 241, 0.15);
+}
+
+html.light .glass-panel-hover:hover,
+[data-theme='light'] .glass-panel-hover:hover {
+  background: #ffffff !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+  box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.08), 0 0 15px rgba(99, 102, 241, 0.1) !important;
+}
+
+.glass-dropdown {
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+}
+
+html.light .glass-dropdown,
+[data-theme='light'] .glass-dropdown {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.12) !important;
+}
+
+.glass-input {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+  transition: all 0.2s ease;
+}
+
+html.light .glass-input,
+[data-theme='light'] .glass-input {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.glass-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  outline: none;
+}
+
+html.light .glass-input:focus,
+[data-theme='light'] .glass-input:focus {
+  background: #ffffff !important;
+  border-color: #4f46e5 !important;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+}
+
+/* =====================================================================
+   UNIVERSAL LIGHT THEME CONTAINER & COMPONENT OVERRIDES
+   ===================================================================== */
+html.light,
+[data-theme='light'] {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+/* Main Layout Backgrounds in Light Mode */
+html.light [class*="bg-slate-950"],
+[data-theme='light'] [class*="bg-slate-950"] {
+  background-color: #f8fafc !important;
+}
+
+html.light header[class*="bg-slate-950"],
+html.light header.glass-panel,
+[data-theme='light'] header[class*="bg-slate-950"],
+[data-theme='light'] header.glass-panel {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+html.light aside[class*="bg-slate-950"],
+html.light aside.glass-panel,
+[data-theme='light'] aside[class*="bg-slate-950"],
+[data-theme='light'] aside.glass-panel {
+  background-color: #ffffff !important;
+  border-right: 1px solid #e2e8f0 !important;
+}
+
+/* Sub-panels and inner cards in Light Mode */
+html.light [class*="bg-slate-900"],
+[data-theme='light'] [class*="bg-slate-900"] {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .glass-panel [class*="bg-slate-900"],
+html.light .glass-panel [class*="bg-slate-950"],
+[data-theme='light'] .glass-panel [class*="bg-slate-900"],
+[data-theme='light'] .glass-panel [class*="bg-slate-950"] {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Borders in Light Mode */
+html.light [class*="border-slate-800"],
+html.light [class*="border-slate-700"],
+[data-theme='light'] [class*="border-slate-800"],
+[data-theme='light'] [class*="border-slate-700"] {
+  border-color: #e2e8f0 !important;
+}
+
+/* Dark Gradients & Tinted Banner Overrides in Light Mode */
+html.light [class*="from-indigo-950"],
+[data-theme='light'] [class*="from-indigo-950"] {
+  background: linear-gradient(to right, #eef2ff, #ffffff, #f8fafc) !important;
+  border-color: #e0e7ff !important;
+}
+
+html.light [class*="from-emerald-950"],
+[data-theme='light'] [class*="from-emerald-950"] {
+  background: linear-gradient(to right, #ecfdf5, #ffffff, #f8fafc) !important;
+  border-color: #d1fae5 !important;
+}
+
+html.light [class*="from-purple-950"],
+[data-theme='light'] [class*="from-purple-950"] {
+  background: linear-gradient(to right, #faf5ff, #ffffff, #f8fafc) !important;
+  border-color: #f3e8ff !important;
+}
+
+html.light [class*="from-amber-950"],
+[data-theme='light'] [class*="from-amber-950"] {
+  background: linear-gradient(to right, #fffbeb, #ffffff, #f8fafc) !important;
+  border-color: #fef3c7 !important;
+}
+
+/* Badges & Icons in Light Mode */
+html.light [class*="bg-indigo-950"],
+[data-theme='light'] [class*="bg-indigo-950"] {
+  background-color: #eef2ff !important;
+  border-color: #c7d2fe !important;
+}
+
+html.light [class*="bg-indigo-900"],
+[data-theme='light'] [class*="bg-indigo-900"] {
+  background-color: #e0e7ff !important;
+  border-color: #c7d2fe !important;
+}
+
+html.light [class*="text-indigo-300"],
+[data-theme='light'] [class*="text-indigo-300"] {
+  color: #4338ca !important;
+}
+
+html.light [class*="text-indigo-400"],
+[data-theme='light'] [class*="text-indigo-400"] {
+  color: #4f46e5 !important;
+}
+
+html.light [class*="text-emerald-300"],
+[data-theme='light'] [class*="text-emerald-300"] {
+  color: #047857 !important;
+}
+
+html.light [class*="text-emerald-400"],
+[data-theme='light'] [class*="text-emerald-400"] {
+  color: #059669 !important;
+}
+
+html.light [class*="text-amber-300"],
+[data-theme='light'] [class*="text-amber-300"] {
+  color: #b45309 !important;
+}
+
+html.light [class*="text-amber-400"],
+[data-theme='light'] [class*="text-amber-400"] {
+  color: #d97706 !important;
+}
+
+html.light [class*="text-purple-300"],
+[data-theme='light'] [class*="text-purple-300"] {
+  color: #7e22ce !important;
+}
+
+html.light [class*="text-purple-400"],
+[data-theme='light'] [class*="text-purple-400"] {
+  color: #9333ea !important;
+}
+
+/* High-Contrast Readable Text in Light Mode */
+html.light .text-white,
+[data-theme='light'] .text-white {
+  color: #0f172a !important;
+}
+
+html.light [class*="text-slate-100"],
+[data-theme='light'] [class*="text-slate-100"] {
+  color: #0f172a !important;
+}
+
+html.light [class*="text-slate-200"],
+[data-theme='light'] [class*="text-slate-200"] {
+  color: #1e293b !important;
+}
+
+html.light [class*="text-slate-300"],
+[data-theme='light'] [class*="text-slate-300"] {
+  color: #334155 !important;
+}
+
+html.light [class*="text-slate-400"],
+[data-theme='light'] [class*="text-slate-400"] {
+  color: #475569 !important;
+}
+
+html.light [class*="text-slate-500"],
+[data-theme='light'] [class*="text-slate-500"] {
+  color: #64748b !important;
+}
+
+/* Keypad Button Light/Dark Styles */
+.keypad-btn {
+  color: #f8fafc;
+  background-color: rgba(15, 23, 42, 0.85);
+}
+
+html.light .keypad-btn,
+[data-theme='light'] .keypad-btn {
+  color: #0f172a !important;
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light .keypad-btn:hover,
+[data-theme='light'] .keypad-btn:hover {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html.light .keypad-btn:active,
+[data-theme='light'] .keypad-btn:active {
+  background-color: #4f46e5 !important;
+  color: #ffffff !important;
+}
+
+/* Preserve White Text for Vibrant Colored Badges, CTA Buttons & Gradients */
+.bg-indigo-600,
+.bg-indigo-500,
+.bg-emerald-600,
+.bg-emerald-500,
+.bg-rose-600,
+.bg-rose-500,
+.bg-amber-600,
+.bg-teal-600,
+.from-indigo-600,
+.from-emerald-600 {
+  color: #ffffff !important;
+}
+
+.bg-indigo-600 *,
+.bg-indigo-500 *,
+.bg-emerald-600 *,
+.bg-emerald-500 *,
+.bg-rose-600 *,
+.bg-rose-500 *,
+.bg-amber-600 *,
+.bg-teal-600 *,
+.from-indigo-600 *,
+.from-emerald-600 * {
+  color: #ffffff !important;
+}
+
+/* Category & Alert Card Tints in Light Mode */
+html.light [class*="bg-emerald-950"],
+[data-theme='light'] [class*="bg-emerald-950"] {
+  background-color: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+}
+
+html.light [class*="text-emerald-300"],
+html.light [class*="text-emerald-400"],
+[data-theme='light'] [class*="text-emerald-300"],
+[data-theme='light'] [class*="text-emerald-400"] {
+  color: #047857 !important;
+}
+
+html.light [class*="bg-indigo-950"],
+[data-theme='light'] [class*="bg-indigo-950"] {
+  background-color: #eef2ff !important;
+  border-color: #c7d2fe !important;
+}
+
+html.light [class*="text-indigo-300"],
+html.light [class*="text-indigo-400"],
+[data-theme='light'] [class*="text-indigo-300"],
+[data-theme='light'] [class*="text-indigo-400"] {
+  color: #4338ca !important;
+}
+
+html.light [class*="bg-rose-950"],
+[data-theme='light'] [class*="bg-rose-950"] {
+  background-color: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+}
+
+html.light [class*="text-rose-300"],
+html.light [class*="text-rose-400"],
+[data-theme='light'] [class*="text-rose-300"],
+[data-theme='light'] [class*="text-rose-400"] {
+  color: #be123c !important;
+}
+
+html.light [class*="bg-amber-950"],
+[data-theme='light'] [class*="bg-amber-950"] {
+  background-color: #fffbeb !important;
+  border-color: #fde68a !important;
+}
+
+html.light [class*="text-amber-300"],
+html.light [class*="text-amber-400"],
+[data-theme='light'] [class*="text-amber-300"],
+[data-theme='light'] [class*="text-amber-400"] {
+  color: #b45309 !important;
+}
+
+/* User Role & Pill Badges in Light Mode */
+html.light span.bg-slate-800,
+html.light div.bg-slate-800,
+[data-theme='light'] span.bg-slate-800,
+[data-theme='light'] div.bg-slate-800 {
+  background-color: #e2e8f0 !important;
+  color: #1e293b !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light span.bg-slate-800\/80,
+[data-theme='light'] span.bg-slate-800\/80 {
+  background-color: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+/* Modals & Backdrops in Light Mode */
+html.light .fixed.inset-0.bg-slate-950\/80,
+[data-theme='light'] .fixed.inset-0.bg-slate-950\/80 {
+  background-color: rgba(15, 23, 42, 0.45) !important;
+}
+
+/* Form Inputs in Light Mode */
+html.light input,
+html.light select,
+html.light textarea,
+[data-theme='light'] input,
+[data-theme='light'] select,
+[data-theme='light'] textarea {
+  color: #0f172a !important;
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder,
+[data-theme='light'] input::placeholder,
+[data-theme='light'] textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+html.light input:focus,
+html.light select:focus,
+html.light textarea:focus,
+[data-theme='light'] input:focus,
+[data-theme='light'] select:focus,
+[data-theme='light'] textarea:focus {
+  background-color: #ffffff !important;
+  border-color: #4f46e5 !important;
+}
+
+/* =====================================================================
+   SCROLLBAR & UTILITIES
+   ===================================================================== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.3);
+}
+
+html.light ::-webkit-scrollbar-track,
+[data-theme='light'] ::-webkit-scrollbar-track {
+  background: rgba(226, 232, 240, 0.6);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.3);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.6);
+}
+
+html.light ::-webkit-scrollbar-thumb,
+[data-theme='light'] ::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.6);
+}
+
+/* Gradient text utility */
+.text-gradient {
+  background: linear-gradient(135deg, #4f46e5 0%, #2563eb 50%, #059669 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+html.dark .text-gradient {
+  background: linear-gradient(135deg, #a5b4fc 0%, #6366f1 50%, #4f46e5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.shadow-glow {
+  box-shadow: 0 0 20px -5px rgba(99, 102, 241, 0.45);
+}
+
+.shadow-glow-emerald {
+  box-shadow: 0 0 20px -5px rgba(16, 185, 129, 0.45);
+}

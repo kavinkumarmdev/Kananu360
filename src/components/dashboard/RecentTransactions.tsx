@@ -1,0 +1,121 @@
+import React from 'react';
+import { useFinance } from '../../context/FinanceContext';
+import { formatCurrency, formatRelativeDate } from '../../utils/formatters';
+import { IconRenderer } from '../common/IconRenderer';
+import { ArrowUpRight, ArrowDownLeft, ArrowLeftRight, ChevronRight } from 'lucide-react';
+
+interface RecentTransactionsProps {
+  onViewAll: () => void;
+  onEditTransaction: (tx: any) => void;
+}
+
+export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
+  onViewAll,
+  onEditTransaction,
+}) => {
+  const { transactions, categories, accounts, settings, t } = useFinance();
+
+  const recent = transactions.slice(0, 5);
+
+  return (
+    <div className="glass-panel rounded-2xl p-5 border border-slate-800">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="font-bold text-white text-base">{t('recentActivity')}</h3>
+          <p className="text-xs text-slate-400">{t('recentActivitySubtitle')}</p>
+        </div>
+        <button
+          onClick={onViewAll}
+          className="flex items-center gap-1 text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition"
+        >
+          <span>{t('viewAll')}</span>
+          <ChevronRight size={14} />
+        </button>
+      </div>
+
+      <div className="divide-y divide-slate-800/60">
+        {recent.length === 0 ? (
+          <div className="text-center py-8 text-slate-500 text-sm">
+            {t('noTransactionsYet')}
+          </div>
+        ) : (
+          recent.map(tx => {
+            const cat = categories.find(c => c.id === tx.category);
+            const account = accounts.find(a => a.id === tx.accountId);
+            const toAccount = tx.toAccountId ? accounts.find(a => a.id === tx.toAccountId) : null;
+
+            let icon = 'Receipt';
+            let iconColor = '#818cf8';
+            if (cat) {
+              icon = cat.icon || 'Receipt';
+              iconColor = cat.color || '#818cf8';
+            } else if (tx.type === 'transfer') {
+              icon = 'ArrowLeftRight';
+              iconColor = '#38bdf8';
+            }
+
+            return (
+              <div
+                key={tx.id}
+                onClick={() => onEditTransaction(tx)}
+                className="py-3 px-2 flex items-center justify-between hover:bg-slate-900/40 rounded-xl cursor-pointer transition group"
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border border-white/5"
+                    style={{ backgroundColor: `${iconColor}20` }}
+                  >
+                    <IconRenderer name={icon} color={iconColor} size={18} />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-100 group-hover:text-indigo-300 transition truncate max-w-[200px] sm:max-w-xs">
+                      {tx.description || (cat ? cat.name : 'Transaction')}
+                    </h4>
+                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                      <span>{formatRelativeDate(tx.date)}</span>
+                      <span>•</span>
+                      <span>
+                        {tx.type === 'transfer'
+                          ? `${account?.name || 'A/c'} → ${toAccount?.name || 'A/c'}`
+                          : account?.name || 'Cash'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <div
+                    className={`text-sm font-bold flex items-center justify-end gap-1 ${
+                      tx.type === 'income'
+                        ? 'text-emerald-400'
+                        : tx.type === 'expense'
+                        ? 'text-slate-100'
+                        : 'text-sky-400'
+                    }`}
+                  >
+                    {tx.type === 'income' ? (
+                      <ArrowUpRight size={14} className="text-emerald-400" />
+                    ) : tx.type === 'expense' ? (
+                      <ArrowDownLeft size={14} className="text-rose-400" />
+                    ) : (
+                      <ArrowLeftRight size={14} className="text-sky-400" />
+                    )}
+                    <span>
+                      {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}
+                      {formatCurrency(tx.amount, settings.currency)}
+                    </span>
+                  </div>
+                  {cat && (
+                    <span className="text-[11px] text-slate-400 font-medium">
+                      {cat.name}
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+};
