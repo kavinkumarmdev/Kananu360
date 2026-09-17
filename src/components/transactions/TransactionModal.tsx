@@ -985,12 +985,12 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           </div>
 
           {/* Submit Actions */}
-          <div className="flex items-center justify-between pt-4 border-t border-slate-800">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t border-slate-800">
             {transactionToEdit ? (
               <button
                 type="button"
                 onClick={handleDelete}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 transition"
+                className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 transition border border-rose-900/30 sm:border-transparent"
               >
                 <Trash2 size={14} />
                 <span>{t('delete')}</span>
@@ -999,17 +999,17 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               <div />
             )}
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition text-center"
               >
                 {t('cancel')}
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white text-xs font-bold shadow-glow transition"
+                className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white text-xs font-bold shadow-glow transition text-center whitespace-nowrap"
               >
                 {transactionToEdit ? t('saveChanges') : t('recordTransaction')}
               </button>
@@ -1020,8 +1020,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
       {/* SUB-MODAL 1: ADD NEW CATEGORY ON THE FLY */}
       {showNewCategoryModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-          <div className="glass-panel rounded-2xl p-6 border border-slate-800 max-w-sm w-full space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn overflow-y-auto">
+          <div className="glass-panel rounded-2xl p-4 sm:p-6 border border-slate-800 max-w-sm w-full space-y-4 my-auto max-h-[90vh] overflow-y-auto">
             <h3 className="font-bold text-white text-sm">{t('addNewCategory')}</h3>
             <form onSubmit={handleCreateCategory} className="space-y-3">
               <div>
@@ -1076,8 +1076,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
       {/* SUB-MODAL 2: ADD NEW FIELD PLOT ON THE FLY */}
       {showNewFieldModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-          <div className="glass-panel rounded-2xl p-6 border border-slate-800 max-w-md w-full space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn overflow-y-auto">
+          <div className="glass-panel rounded-2xl p-4 sm:p-6 border border-slate-800 max-w-md w-full space-y-4 my-auto max-h-[90vh] overflow-y-auto">
             <h3 className="font-bold text-white text-sm flex items-center gap-1.5 text-emerald-400">
               <Sprout size={16} />
               <span>{t('addNewField')}</span>
@@ -1101,7 +1101,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                   <label className="block text-xs text-slate-300 mb-1">{t('fieldAreaAcre')} *</label>
                   <input
@@ -1174,8 +1174,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
       {/* SUB-MODAL 3: ADD NEW WORKER ON THE FLY */}
       {showNewWorkerModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-          <div className="glass-panel rounded-2xl p-6 border border-slate-800 max-w-sm w-full space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn overflow-y-auto">
+          <div className="glass-panel rounded-2xl p-4 sm:p-6 border border-slate-800 max-w-sm w-full space-y-4 my-auto max-h-[90vh] overflow-y-auto">
             <h3 className="font-bold text-white text-sm flex items-center gap-1.5 text-indigo-300">
               <Users size={16} />
               <span>{t('addNewWorker')}</span>

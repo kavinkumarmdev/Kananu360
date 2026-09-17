@@ -87,7 +87,7 @@ export const PinLockScreen: React.FC = () => {
               key={num}
               type="button"
               onClick={() => handleDigit(num)}
-              className="keypad-btn h-12 rounded-2xl bg-slate-900/90 hover:bg-slate-800 active:bg-indigo-600 border border-slate-800 text-base font-bold text-slate-900 dark:text-white transition active:scale-95 flex items-center justify-center"
+              className="keypad-btn h-12 rounded-2xl bg-slate-900/90 hover:bg-slate-800 active:bg-indigo-600 border border-slate-800 text-base font-bold text-white transition active:scale-95 flex items-center justify-center"
             >
               {num}
             </button>
@@ -95,7 +95,7 @@ export const PinLockScreen: React.FC = () => {
           <button
             type="button"
             onClick={() => handleDigit('0')}
-            className="keypad-btn col-start-2 h-12 rounded-2xl bg-slate-900/90 hover:bg-slate-800 active:bg-indigo-600 border border-slate-800 text-base font-bold text-slate-900 dark:text-white transition active:scale-95 flex items-center justify-center"
+            className="keypad-btn col-start-2 h-12 rounded-2xl bg-slate-900/90 hover:bg-slate-800 active:bg-indigo-600 border border-slate-800 text-base font-bold text-white transition active:scale-95 flex items-center justify-center"
           >
             0
           </button>

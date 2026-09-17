@@ -56,8 +56,8 @@ export const BulkClaimModal: React.FC<BulkClaimModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-      <div className="glass-panel rounded-2xl p-6 border border-amber-500/30 max-w-md w-full space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn overflow-y-auto">
+      <div className="glass-panel rounded-2xl p-4 sm:p-6 border border-amber-500/30 max-w-md w-full space-y-4 my-auto max-h-[92vh] overflow-y-auto">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-amber-400">
             <Trophy size={22} className="animate-bounce" />
@@ -100,7 +100,7 @@ export const BulkClaimModal: React.FC<BulkClaimModalProps> = ({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1">
                 {t('claimedInstallmentNo')}
@@ -141,7 +141,7 @@ export const BulkClaimModal: React.FC<BulkClaimModalProps> = ({
               onChange={e => setAccountId(e.target.value)}
               className="w-full px-3 py-2 rounded-xl glass-input text-xs text-white focus:outline-none"
             >
-              <option value="" className="bg-slate-900 text-slate-400">None (Do not auto-credit)</option>
+              <option value="" className="bg-slate-900 text-slate-400">None</option>
               {accounts.map(acc => (
                 <option key={acc.id} value={acc.id} className="bg-slate-900 text-white">
                   {acc.name} ({settings.currencySymbol}{acc.balance.toLocaleString()})
@@ -156,7 +156,7 @@ export const BulkClaimModal: React.FC<BulkClaimModalProps> = ({
             </label>
             <input
               type="text"
-              placeholder="e.g. Bidded at 4th month, Cheque #88123"
+              placeholder="e.g. Cleared at 4th auction bid dividend"
               value={notes}
               onChange={e => setNotes(e.target.value)}
               className="w-full px-3 py-2 rounded-xl glass-input text-xs text-white focus:outline-none"
@@ -167,16 +167,15 @@ export const BulkClaimModal: React.FC<BulkClaimModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-1.5 rounded-lg text-xs text-slate-400 hover:text-white"
+              className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white"
             >
               {t('cancel')}
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-glow transition flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-bold text-xs shadow-glow transition"
             >
-              <Trophy size={14} />
-              <span>Save Bulk Prize Payout</span>
+              🎉 Record Claim
             </button>
           </div>
         </form>

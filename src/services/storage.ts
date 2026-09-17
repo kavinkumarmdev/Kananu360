@@ -97,181 +97,11 @@ export const INITIAL_SETTINGS: AppSettings = {
 
 export const INITIAL_FAMILY_MEMBERS: FamilyMember[] = DEFAULT_FAMILY_MEMBERS;
 
-export const INITIAL_FIELDS: FarmField[] = [
-  {
-    id: 'fld_south_half_acre',
-    name: 'South 1/2 Acre Plot (தெற்கு அரை ஏக்கர்)',
-    areaAcre: 0.5,
-    sizeUnit: 'acres',
-    color: '#10B981',
-    notes: '0.5 Acre field with 20 permanent border coconut trees. Rotational inner crops.',
-    trees: [
-      {
-        id: 'tree_coconut_border',
-        treeType: 'Coconut Tree / தென்னை மரம் (Coconut)',
-        count: 20,
-        plantedYear: 2018,
-        location: 'boundary',
-        harvestFrequencyMonths: 3,
-        averageYieldPerHarvest: 100,
-        ratePerUnit: 20,
-        lastHarvestDate: '2024-11-15',
-        notes: '20 Border coconut trees. Yields ~100 nuts every 3 months (₹20/nut = ₹2,000/harvest).',
-      },
-    ],
-    crops: [
-      {
-        id: 'crop_turmeric_primary',
-        cropType: 'Turmeric (Erode Local / BSR) / மஞ்சள்',
-        isPrimary: true,
-        intercropType: 'Small Onion / Shallots / சின்ன வெங்காயம்',
-        plantCount: 150,
-        plantCountUnit: 'kg seeds',
-        startDate: '2024-12-20',
-        expectedHarvestDate: '2025-09-20',
-        variety: 'BSR 2 / Erode Local',
-        notes: 'Primary crop Turmeric with Small Onion intercropping started on 20/12/2024.',
-        status: 'active',
-      },
-      {
-        id: 'crop_onion_intercrop',
-        cropType: 'Small Onion / Shallots / சின்ன வெங்காயம்',
-        isPrimary: false,
-        plantCount: 50,
-        plantCountUnit: 'kg seeds',
-        startDate: '2024-12-20',
-        expectedHarvestDate: '2025-03-20',
-        variety: 'Coimbatore Local Shallots',
-        notes: 'Secondary intercrop sown along turmeric ridges.',
-        status: 'active',
-      },
-    ],
-    cropHistory: [
-      {
-        id: 'hist_red_banana_2024',
-        cropType: 'Red Banana (Sevvaazhai) / செவ்வாழை',
-        isPrimary: true,
-        plantCount: 300,
-        plantCountUnit: 'saplings / கன்றுகள்',
-        startDate: '2024-01-01',
-        endDate: '2024-12-01',
-        duration: '11 Months (01/01/2024 - 01/12/2024)',
-        totalInvestment: 38500,
-        fertilizerExpense: 12000,
-        laborExpense: 14500,
-        seedExpense: 7500,
-        otherExpense: 4500,
-        harvestYield: '280 Bunches / வாழைத்தார்',
-        harvestIncome: 95000,
-        netProfitLoss: 56500,
-        profitMarginPct: 146.7,
-        reason: 'Harvest completed & sold to wholesale / அறுவடை முடிந்தது',
-        notes: '300 Red Banana saplings planted on 01/01/2024 and fully harvested on 01/12/2024. Net profit: ₹56,500.',
-      },
-    ],
-    treeHarvests: [
-      {
-        id: 'harv_coc_1',
-        fieldId: 'fld_south_half_acre',
-        treeId: 'tree_coconut_border',
-        treeType: 'Coconut Tree / தென்னை மரம்',
-        date: '2024-11-15',
-        quantityHarvested: 100,
-        unit: 'coconuts / காய்கள்',
-        ratePerUnit: 20,
-        totalIncome: 2000,
-        laborExpense: 300,
-        netIncome: 1700,
-        notes: '100 coconuts plucked from 20 border trees @ ₹20/nut.',
-      },
-    ],
-  },
-  {
-    id: 'fld_north_one_and_half_acre',
-    name: 'North 1.5 Acre Plot (வடக்கு 1.5 ஏக்கர்)',
-    areaAcre: 1.5,
-    sizeUnit: 'acres',
-    color: '#0284C7',
-    notes: '1.5 Acre main field for seasonal crop rotation & fodder.',
-    trees: [
-      {
-        id: 'tree_teak_boundary',
-        treeType: 'Teak Wood / தேக்கு மரம் (Teak)',
-        count: 15,
-        plantedYear: 2021,
-        location: 'boundary',
-        notes: '15 Teak timber trees along outer boundary.',
-      },
-    ],
-    crops: [
-      {
-        id: 'crop_paddy_north',
-        cropType: 'Paddy / Rice (Ponni/CO51) / நெல்',
-        isPrimary: true,
-        startDate: '2024-11-01',
-        expectedHarvestDate: '2025-03-01',
-        variety: 'Ponni / CO 51',
-        notes: 'Paddy cultivation in 1.5 acre plot.',
-        status: 'active',
-      },
-    ],
-    cropHistory: [],
-    treeHarvests: [],
-  },
-];
+export const INITIAL_FIELDS: FarmField[] = [];
 
-export const INITIAL_WORKERS: FarmWorker[] = [
-  { id: 'wrk_velu', name: 'Velusamy (வேலுசாமி)', defaultDailyWage: 500, role: 'Field Coolie / உழவு & கூலி', phone: '9842100001' },
-  { id: 'wrk_murugan', name: 'Murugan (முருகன்)', defaultDailyWage: 700, role: 'Coconut Tree Climber / தேங்காய் வெட்டு', phone: '9842100002' },
-  { id: 'wrk_selvi', name: 'Selvi (செல்வி)', defaultDailyWage: 350, role: 'Weeding & Ridge Work / களை எடுத்தல்', phone: '9842100003' },
-];
+export const INITIAL_WORKERS: FarmWorker[] = [];
 
-export const INITIAL_LIVESTOCK: FarmLivestock[] = [
-  {
-    id: 'live_sheep_batch',
-    name: 'Country Sheep Batch (செம்மறி ஆடுகள்)',
-    type: 'sheep',
-    count: 4,
-    purchaseCost: 24000,
-    purchaseDate: '2024-02-15',
-    notes: '4 Sheep for breeding, grazing on farm border & live sale.',
-    status: 'active',
-  },
-  {
-    id: 'live_dairy_cows',
-    name: 'HF Dairy Cows (கறவை மாடுகள்)',
-    type: 'cow',
-    count: 2,
-    dailyMilkLiters: 12,
-    milkRatePerLiter: 38,
-    purchaseCost: 85000,
-    purchaseDate: '2023-06-10',
-    notes: '2 Milking cows. Average 12 Liters/day supplied to dairy @ ₹38/L.',
-    status: 'active',
-  },
-  {
-    id: 'live_country_hens',
-    name: 'Country Chicken / Hens (நாட்டுக்கோழி)',
-    type: 'hen',
-    count: 12,
-    dailyEggCount: 8,
-    eggRatePerPiece: 6,
-    purchaseCost: 3600,
-    notes: '12 Free-range country hens producing ~8 eggs/day @ ₹6.',
-    status: 'active',
-  },
-  {
-    id: 'live_ducks',
-    name: 'Farm Ducks (பண்ணை வாத்துக்கள்)',
-    type: 'duck',
-    count: 4,
-    dailyEggCount: 3,
-    eggRatePerPiece: 7,
-    purchaseCost: 1600,
-    notes: '4 Ducks in farm water channel producing ~3 eggs/day.',
-    status: 'active',
-  },
-];
+export const INITIAL_LIVESTOCK: FarmLivestock[] = [];
 
 export const INITIAL_LOANS: Loan[] = [];
 
@@ -317,8 +147,8 @@ export const INITIAL_CATEGORIES: Category[] = [
 ];
 
 export const INITIAL_ACCOUNTS: Account[] = [
-  { id: 'acc_bank', name: 'Primary Bank A/c (வங்கி கணக்கு)', type: 'bank', balance: 50000, accountNumber: '•••• 0001', icon: 'Building2', color: '#0284C7', isDefault: true },
-  { id: 'acc_cash', name: 'Cash in Hand (கையில் ரொக்கம்)', type: 'cash', balance: 15000, icon: 'Coins', color: '#059669' },
+  { id: 'acc_bank', name: 'Primary Bank A/c (வங்கி கணக்கு)', type: 'bank', balance: 0, accountNumber: '•••• 0001', icon: 'Building2', color: '#0284C7', isDefault: true },
+  { id: 'acc_cash', name: 'Cash in Hand (கையில் ரொக்கம்)', type: 'cash', balance: 0, icon: 'Coins', color: '#059669' },
 ];
 
 export const INITIAL_BUDGETS: Budget[] = [];
@@ -328,6 +158,52 @@ export const INITIAL_GOALS: SavingsGoal[] = [];
 export const generateSampleTransactions = (): Transaction[] => {
   return [];
 };
+
+// One-time cleanup for old demo dummy data from localStorage
+const cleanupLegacyDemoData = () => {
+  if (typeof window === 'undefined' || !window.localStorage) return;
+  try {
+    const isCleaned = localStorage.getItem('kanakku360_cleaned_v3_clean');
+    if (!isCleaned) {
+      localStorage.setItem('kanakku360_cleaned_v3_clean', 'true');
+      
+      // Clean old accounts with 50000/15000 dummy initial balances if no user tx exists
+      const accountsData = localStorage.getItem(STORAGE_KEYS.ACCOUNTS);
+      if (accountsData) {
+        try {
+          const accs = JSON.parse(accountsData);
+          if (Array.isArray(accs)) {
+            const hasDummyBalance = accs.some((a: Account) => a.balance === 50000 || a.balance === 15000 || a.balance === 65000);
+            if (hasDummyBalance) {
+              const cleanedAccs = accs.map((a: Account) => ({ ...a, balance: 0 }));
+              localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(cleanedAccs));
+            }
+          }
+        } catch {
+          localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(INITIAL_ACCOUNTS));
+        }
+      }
+
+      // Clean dummy demo farm fields, workers, livestock
+      const fieldsData = localStorage.getItem(STORAGE_KEYS.FIELDS);
+      if (fieldsData && fieldsData.includes('fld_south_half_acre')) {
+        localStorage.removeItem(STORAGE_KEYS.FIELDS);
+      }
+      const workersData = localStorage.getItem(STORAGE_KEYS.WORKERS);
+      if (workersData && workersData.includes('wrk_velu')) {
+        localStorage.removeItem(STORAGE_KEYS.WORKERS);
+      }
+      const livestockData = localStorage.getItem(STORAGE_KEYS.LIVESTOCK);
+      if (livestockData && livestockData.includes('live_sheep_batch')) {
+        localStorage.removeItem(STORAGE_KEYS.LIVESTOCK);
+      }
+    }
+  } catch {
+    // Ignore localStorage errors
+  }
+};
+
+cleanupLegacyDemoData();
 
 export const StorageService = {
   getTransactions: (): Transaction[] => {
@@ -349,13 +225,17 @@ export const StorageService = {
   getFields: (): FarmField[] => {
     const data = localStorage.getItem(STORAGE_KEYS.FIELDS);
     if (!data) {
-      localStorage.setItem(STORAGE_KEYS.FIELDS, JSON.stringify(INITIAL_FIELDS));
-      return INITIAL_FIELDS;
+      return [];
     }
     try {
-      return JSON.parse(data);
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed) && parsed.some(f => f.id === 'fld_south_half_acre')) {
+        localStorage.removeItem(STORAGE_KEYS.FIELDS);
+        return [];
+      }
+      return parsed;
     } catch {
-      return INITIAL_FIELDS;
+      return [];
     }
   },
 
@@ -366,13 +246,17 @@ export const StorageService = {
   getWorkers: (): FarmWorker[] => {
     const data = localStorage.getItem(STORAGE_KEYS.WORKERS);
     if (!data) {
-      localStorage.setItem(STORAGE_KEYS.WORKERS, JSON.stringify(INITIAL_WORKERS));
-      return INITIAL_WORKERS;
+      return [];
     }
     try {
-      return JSON.parse(data);
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed) && parsed.some(w => w.id === 'wrk_velu')) {
+        localStorage.removeItem(STORAGE_KEYS.WORKERS);
+        return [];
+      }
+      return parsed;
     } catch {
-      return INITIAL_WORKERS;
+      return [];
     }
   },
 
@@ -383,13 +267,17 @@ export const StorageService = {
   getLivestock: (): FarmLivestock[] => {
     const data = localStorage.getItem(STORAGE_KEYS.LIVESTOCK);
     if (!data) {
-      localStorage.setItem(STORAGE_KEYS.LIVESTOCK, JSON.stringify(INITIAL_LIVESTOCK));
-      return INITIAL_LIVESTOCK;
+      return [];
     }
     try {
-      return JSON.parse(data);
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed) && parsed.some(l => l.id === 'live_sheep_batch')) {
+        localStorage.removeItem(STORAGE_KEYS.LIVESTOCK);
+        return [];
+      }
+      return parsed;
     } catch {
-      return INITIAL_LIVESTOCK;
+      return [];
     }
   },
 

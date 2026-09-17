@@ -85,8 +85,8 @@ export const SavingModal: React.FC<SavingModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-      <div className="glass-panel rounded-2xl p-6 border border-slate-800 max-w-lg w-full space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn overflow-y-auto">
+      <div className="glass-panel rounded-2xl p-4 sm:p-6 border border-slate-800 max-w-lg w-full space-y-4 my-auto max-h-[92vh] overflow-y-auto">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-emerald-400">
             <Coins size={22} />
@@ -103,7 +103,7 @@ export const SavingModal: React.FC<SavingModalProps> = ({
         </div>
 
         {/* Scheme Type Selector Tabs */}
-        <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-slate-900 border border-slate-800">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-1 rounded-xl bg-slate-900 border border-slate-800">
           <button
             type="button"
             onClick={() => setSchemeType('chit_fund')}
@@ -173,7 +173,7 @@ export const SavingModal: React.FC<SavingModalProps> = ({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1">
                 {t('totalChitValue')} (Target ₹) *
@@ -205,7 +205,7 @@ export const SavingModal: React.FC<SavingModalProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1">
                 {t('installmentFrequency')}
@@ -253,7 +253,7 @@ export const SavingModal: React.FC<SavingModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-1.5 rounded-lg text-xs text-slate-400 hover:text-white"
+              className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white"
             >
               {t('cancel')}
             </button>

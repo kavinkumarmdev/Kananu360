@@ -136,7 +136,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
               settings.theme === 'light'
                 ? 'text-emerald-700 font-extrabold'
                 : 'text-emerald-400/90 font-bold'
-            } uppercase tracking-wider -mt-0.5`}
+            } uppercase tracking-wider -mt-0.5 hidden xs:block truncate`}
           >
             {isTamil ? 'பண்ணை & குடும்ப கணக்கு' : 'Farm & Personal Ledger'}
           </span>

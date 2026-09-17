@@ -102,8 +102,8 @@ export const LoanModal: React.FC<LoanModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-      <div className="glass-panel rounded-2xl p-6 border border-slate-800 max-w-lg w-full space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn overflow-y-auto">
+      <div className="glass-panel rounded-2xl p-4 sm:p-6 border border-slate-800 max-w-lg w-full space-y-4 my-auto max-h-[92vh] overflow-y-auto">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-indigo-400">
             <Landmark size={22} />
@@ -174,7 +174,7 @@ export const LoanModal: React.FC<LoanModalProps> = ({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1">
                 {t('principalAmount')} (₹) *
@@ -205,7 +205,7 @@ export const LoanModal: React.FC<LoanModalProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1">
                 {t('interestRate')}
@@ -236,7 +236,7 @@ export const LoanModal: React.FC<LoanModalProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1">
                 Start Date
@@ -280,7 +280,7 @@ export const LoanModal: React.FC<LoanModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-1.5 rounded-lg text-xs text-slate-400 hover:text-white"
+              className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white"
             >
               {t('cancel')}
             </button>

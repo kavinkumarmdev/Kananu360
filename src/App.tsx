@@ -88,23 +88,23 @@ const MainApp: React.FC = () => {
           {activeTab === 'dashboard' && (
             <div className="space-y-6">
               {/* Welcome & Overview Banner */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl glass-panel border border-indigo-500/20 shadow-md relative overflow-hidden">
-                <div className="flex items-center gap-3.5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl glass-panel border border-indigo-500/20 shadow-md relative overflow-hidden bg-gradient-to-r from-indigo-950/30 via-slate-900/40 to-slate-900/30">
+                <div className="flex items-center gap-3.5 min-w-0">
                   <div className="w-12 h-12 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-2xl shrink-0 shadow-sm">
                     {user?.avatar || '👤'}
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
-                        {t('greeting')}, {user?.name || settings.userName || 'Kavin'}!
+                      <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+                        {t('greeting')}, <span className="text-indigo-400 dark:text-indigo-300 font-black">{user?.name || settings.userName || 'Kavin'}</span>!
                       </h1>
                       {user?.role && (
-                        <span className="text-xs px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 font-semibold border border-indigo-200 dark:border-indigo-500/30">
+                        <span className="text-xs px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-semibold border border-indigo-500/30 shrink-0">
                           {user.role.split('(')[0].trim()}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
                       {settings.language === 'ta'
                         ? 'வரவு, செலவு, பண்ணை மற்றும் குடும்ப நிதி கணக்கு நேரலை மேலாண்மை.'
                         : 'Personal, farm harvests, coolie wages & household accounts overview.'}

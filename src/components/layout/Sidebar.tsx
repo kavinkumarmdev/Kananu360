@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   LayoutDashboard,
   Sprout,
@@ -10,6 +9,9 @@ import {
   X,
   LogOut,
   Coins,
+  Sun,
+  Moon,
+  Globe,
 } from 'lucide-react';
 import { useFinance } from '../../context/FinanceContext';
 import { useAuth } from '../../context/AuthContext';
@@ -30,8 +32,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isMobileOpen,
   setIsMobileOpen,
 }) => {
-  const { transactions, accounts, budgets, goals, loans, savings, pendingWageTransactions, settings, t } = useFinance();
+  const { transactions, accounts, budgets, goals, loans, savings, pendingWageTransactions, settings, updateSettings, t } = useFinance();
   const { user, logout } = useAuth();
+
+  const toggleLanguage = () => {
+    const nextLang = settings.language === 'ta' ? 'en' : 'ta';
+    updateSettings({ language: nextLang });
+  };
+
+  const toggleTheme = () => {
+    const nextTheme = settings.theme === 'light' ? 'dark' : 'light';
+    updateSettings({ theme: nextTheme });
+  };
 
   const navItems: { id: string; labelKey: TranslationKey; icon: any; badge: number | null; highlight?: boolean }[] = [
     { id: 'dashboard', labelKey: 'navDashboard', icon: LayoutDashboard, badge: null },
@@ -152,15 +164,39 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity"
             onClick={() => setIsMobileOpen(false)}
           />
-          <div className="fixed inset-y-0 left-0 w-80 bg-slate-950 border-r border-slate-800 shadow-2xl flex flex-col z-10">
+          <div className="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-slate-950 border-r border-slate-800 shadow-2xl flex flex-col z-10">
             <div className="p-4 border-b border-slate-800 flex items-center justify-between">
               <BrandLogo size="sm" onClick={() => handleNavClick('dashboard')} />
-              <button
-                onClick={() => setIsMobileOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white"
-              >
-                <X size={20} />
-              </button>
+              <div className="flex items-center gap-1.5">
+                {/* Mobile Drawer Theme Toggle */}
+                <button
+                  onClick={toggleTheme}
+                  className="p-2 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-200 hover:bg-slate-800 transition"
+                  title={settings.theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+                >
+                  {settings.theme === 'light' ? (
+                    <Moon size={15} className="text-indigo-400" />
+                  ) : (
+                    <Sun size={15} className="text-amber-400" />
+                  )}
+                </button>
+                {/* Mobile Drawer Language Toggle */}
+                <button
+                  onClick={toggleLanguage}
+                  className="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700/80 text-xs font-bold text-slate-200 hover:bg-slate-800 transition flex items-center gap-1"
+                  title="Switch Language"
+                >
+                  <Globe size={13} className="text-indigo-400" />
+                  <span>{settings.language === 'ta' ? 'EN' : 'த'}</span>
+                </button>
+                <button
+                  onClick={() => setIsMobileOpen(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-white"
+                  aria-label="Close menu"
+                >
+                  <X size={20} />
+                </button>
+              </div>
             </div>
             <div className="flex-1 overflow-y-auto">{navContent}</div>
           </div>

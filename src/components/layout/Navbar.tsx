@@ -45,49 +45,52 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-30 w-full glass-panel border-b border-slate-800/80 bg-slate-950/70 backdrop-blur-xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2 sm:gap-4">
         {/* Mobile menu trigger + Brand */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 min-w-0">
           <button
             onClick={onOpenMobileMenu}
-            className="md:hidden p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            className="md:hidden p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition shrink-0"
+            aria-label="Toggle Navigation Menu"
           >
             <Menu size={22} />
           </button>
-          <BrandLogo size="md" onClick={() => setActiveTab('dashboard')} />
+          <div className="shrink-0 min-w-0">
+            <BrandLogo size="md" onClick={() => setActiveTab('dashboard')} />
+          </div>
         </div>
 
-        {/* Center: Net Worth badge on medium+ screens */}
-        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/60 border border-slate-800 text-xs">
+        {/* Center: Net Worth badge on large screens */}
+        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/60 border border-slate-800 text-xs shrink-0">
           <span className="text-slate-400 font-medium">{t('netWorth')}:</span>
           <span className={`font-bold ${totalNetWorth >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
             {formatCurrency(totalNetWorth, settings.currency)}
           </span>
         </div>
 
-        {/* Right Action Icons & Sync Pill */}
-        <div className="flex items-center gap-2">
-          {/* Theme Toggle Button */}
+        {/* Right Action Icons */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Theme Toggle Button - hidden on mobile, visible on sm+ */}
           <button
             onClick={toggleTheme}
-            className="flex items-center gap-1.5 p-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 text-xs font-semibold text-slate-200 transition shadow-sm"
+            className="hidden sm:flex items-center justify-center p-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 text-xs font-semibold text-slate-200 transition shadow-sm shrink-0"
             title={settings.theme === 'light' ? 'Switch to Dark Mode (🌙)' : 'Switch to Light Mode (☀️)'}
           >
             {settings.theme === 'light' ? (
-              <Moon size={15} className="text-indigo-500" />
+              <Moon size={15} className="text-indigo-500 shrink-0" />
             ) : (
-              <Sun size={15} className="text-amber-400" />
+              <Sun size={15} className="text-amber-400 shrink-0" />
             )}
           </button>
 
-          {/* Language Switcher Pill */}
+          {/* Language Switcher Pill - hidden on mobile, visible on sm+ */}
           <button
             onClick={toggleLanguage}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 text-xs font-semibold text-slate-200 transition"
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 text-xs font-semibold text-slate-200 transition shrink-0"
             title="Switch between தமிழ் and English"
           >
-            <Globe size={14} className="text-indigo-400" />
-            <span>{settings.language === 'ta' ? 'தமிழ்' : 'English'}</span>
+            <Globe size={14} className="text-indigo-400 shrink-0" />
+            <span className="whitespace-nowrap">{settings.language === 'ta' ? 'தமிழ்' : 'English'}</span>
           </button>
 
           {/* Cloud Sync Status Pill */}
@@ -105,7 +108,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 ? `Google Sheet Sync: ${syncState.status}. Click to sync now.`
                 : 'Google Sheet not connected. Click to connect now.'
             }
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${
+            className={`flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-xl text-xs font-medium border transition-all shrink-0 ${
               syncState.status === 'syncing'
                 ? 'bg-indigo-950/60 border-indigo-600/60 text-indigo-300'
                 : syncState.status === 'success'
@@ -116,13 +119,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             {syncState.status === 'syncing' ? (
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-indigo-400" />
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-indigo-400 shrink-0" />
             ) : settings.sheetUrl ? (
-              <Cloud className="w-3.5 h-3.5 text-emerald-400" />
+              <Cloud className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
             ) : (
-              <CloudOff className="w-3.5 h-3.5 text-slate-500" />
+              <CloudOff className="w-3.5 h-3.5 text-slate-500 shrink-0" />
             )}
-            <span className="hidden sm:inline">
+            <span className="hidden md:inline whitespace-nowrap">
               {syncState.status === 'syncing'
                 ? t('syncing')
                 : settings.sheetUrl
@@ -134,32 +137,33 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Quick Add Button */}
           <button
             onClick={onOpenQuickAdd}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white text-xs sm:text-sm font-semibold shadow-glow transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+            className="flex items-center justify-center gap-1.5 p-2 sm:px-3.5 sm:py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white text-xs sm:text-sm font-semibold shadow-glow transition-all transform hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap shrink-0"
+            title={t('record')}
           >
-            <Plus size={16} />
-            <span>{t('record')}</span>
+            <Plus size={16} className="shrink-0" />
+            <span className="hidden md:inline whitespace-nowrap">{t('record')}</span>
           </button>
 
-          {/* Settings Icon */}
+          {/* Settings Icon - hidden on mobile */}
           <button
             onClick={() => setActiveTab('settings')}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 border border-transparent hover:border-slate-700 transition"
+            className="hidden sm:flex p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 border border-transparent hover:border-slate-700 transition shrink-0"
             title={t('settings')}
           >
             <SettingsIcon size={18} />
           </button>
 
           {/* User Profile Avatar with Dropdown */}
-          <div className="relative" ref={userMenuRef}>
+          <div className="relative shrink-0" ref={userMenuRef}>
             <button
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-indigo-500/50 transition"
+              className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-indigo-500/50 transition shrink-0"
               title={user?.name || 'User Profile'}
             >
               <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-600 to-indigo-800 flex items-center justify-center text-sm font-bold text-white shadow-sm shrink-0">
                 {user?.avatar || (user?.name ? user.name[0].toUpperCase() : '👤')}
               </div>
-              <div className="hidden md:block text-left min-w-0 pr-1">
+              <div className="hidden lg:block text-left min-w-0 pr-1">
                 <p className="text-xs font-bold text-white truncate leading-tight">{user?.name || 'Kavin'}</p>
                 <p className="text-[10px] text-slate-400 truncate leading-none">{user?.role?.split('(')[0] || 'Member'}</p>
               </div>
@@ -167,7 +171,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Dropdown Menu with Family Member Quick Switcher */}
             {isUserMenuOpen && (
-              <div className="absolute right-0 mt-2 w-72 glass-dropdown rounded-2xl p-2.5 border border-slate-800 shadow-2xl z-50 animate-fadeIn">
+              <div className="absolute right-0 mt-2 w-72 max-w-[calc(100vw-1.5rem)] glass-dropdown rounded-2xl p-2.5 border border-slate-800 shadow-2xl z-50 animate-fadeIn">
                 {/* User Info Header */}
                 <div className="p-3 bg-indigo-950/40 rounded-xl border border-indigo-500/20 mb-2">
                   <div className="flex items-center gap-2.5">
@@ -179,6 +183,34 @@ export const Navbar: React.FC<NavbarProps> = ({
                       <p className="text-[11px] text-indigo-300 truncate">{user?.role || 'Administrator'}</p>
                     </div>
                   </div>
+                </div>
+
+                {/* Mobile Quick Toggles for Theme & Language */}
+                <div className="grid grid-cols-2 gap-1.5 mb-2 sm:hidden">
+                  <button
+                    onClick={toggleTheme}
+                    className="flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-xs font-semibold text-slate-200 transition shadow-sm"
+                  >
+                    {settings.theme === 'light' ? (
+                      <>
+                        <Moon size={14} className="text-indigo-400 shrink-0" />
+                        <span>Dark Mode</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sun size={14} className="text-amber-400 shrink-0" />
+                        <span>Light Mode</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={toggleLanguage}
+                    className="flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-xs font-semibold text-slate-200 transition shadow-sm"
+                  >
+                    <Globe size={14} className="text-indigo-400 shrink-0" />
+                    <span>{settings.language === 'ta' ? 'English' : 'தமிழ்'}</span>
+                  </button>
                 </div>
 
                 {/* Quick Family Member Switcher Section */}
