@@ -337,11 +337,13 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         goals,
         loans,
         savings,
-        settings: {
-          currency: settings.currency,
-          currencySymbol: settings.currencySymbol,
-          userName: settings.userName,
-        },
+        settings: [
+          {
+            currency: settings.currency,
+            currencySymbol: settings.currencySymbol,
+            userName: settings.userName,
+          },
+        ],
       };
 
       setSyncState(prev => ({ ...prev, status: 'syncing' }));
@@ -1690,11 +1692,13 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
           goals,
           loans,
           savings,
-          settings: {
-            currency: settings.currency,
-            currencySymbol: settings.currencySymbol,
-            userName: settings.userName,
-          },
+          settings: [
+            {
+              currency: settings.currency,
+              currencySymbol: settings.currencySymbol,
+              userName: settings.userName,
+            },
+          ],
         };
 
         const res = await GoogleSheetApiService.syncAllToSheet(settings.sheetUrl, payload);

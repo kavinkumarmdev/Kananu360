@@ -338,9 +338,11 @@ function overwriteSheetData(sheet, items, headers) {
   headerRange.setBackground('#1E293B');
   sheet.setFrozenRows(1);
 
-  if (!items || items.length === 0) return;
+  if (!items) return;
+  const list = Array.isArray(items) ? items : [items];
+  if (list.length === 0) return;
 
-  const rows = items.map(item => {
+  const rows = list.map(item => {
     return headers.map(header => {
       let val = item[header];
       if (val !== undefined && val !== null) {

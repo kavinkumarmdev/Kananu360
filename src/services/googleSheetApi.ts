@@ -108,9 +108,13 @@ export const GoogleSheetApiService = {
         accounts: payload.accounts,
         budgets: payload.budgets,
         goals: payload.goals,
-        loans: payload.loans,
-        savings: payload.savings,
-        settings: payload.settings,
+        loans: payload.loans || [],
+        savings: payload.savings || [],
+        settings: Array.isArray(payload.settings)
+          ? payload.settings
+          : payload.settings
+          ? [payload.settings]
+          : [],
       },
     };
 
