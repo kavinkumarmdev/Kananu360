@@ -15,6 +15,8 @@ import {
   CheckCircle2,
   Clock,
 } from 'lucide-react';
+import { DatePicker } from '../common/DatePicker';
+import { SearchableSelect } from '../common/SearchableSelect';
 
 interface TransactionModalProps {
   isOpen: boolean;
@@ -447,18 +449,16 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   <span>{t('addNewCategory')}</span>
                 </button>
               </div>
-              <select
+              <SearchableSelect
+                options={availableCategories.map(cat => ({
+                  id: cat.id,
+                  label: getCategoryName(cat.id, cat.name),
+                }))}
                 value={categoryId}
-                onChange={e => setCategoryId(e.target.value)}
+                onChange={val => setCategoryId(val)}
+                placeholder="-- Select Category --"
                 required
-                className="w-full px-3.5 py-2.5 rounded-xl glass-input text-sm text-slate-100 focus:outline-none"
-              >
-                {availableCategories.map(cat => (
-                  <option key={cat.id} value={cat.id} className="bg-slate-900 text-white">
-                    {getCategoryName(cat.id, cat.name)}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
           )}
 
@@ -649,8 +649,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   />
                   <div className="flex flex-wrap gap-1 pt-0.5">
                     {POPULAR_CROPS.map(c => {
-                      const label = `${c.name} / ${c.nameTa}`;
-                      const isSel = transactionCrop === label;
+                      const label = `${c.nameTa} (${c.name})`;
+                      const isSel = transactionCrop === label || transactionCrop === `${c.name} / ${c.nameTa}`;
                       return (
                         <button
                           key={c.id}
@@ -662,7 +662,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                               : 'bg-slate-900 text-slate-400 hover:text-emerald-300 border-slate-800'
                           }`}
                         >
-                          {c.nameTa}
+                          {c.nameTa} ({c.name})
                         </button>
                       );
                     })}
@@ -834,12 +834,11 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                     <label className="block text-[11px] text-amber-300 font-semibold mb-1">
                       {t('promisedDate')} (Due Date)
                     </label>
-                    <input
-                      type="date"
-                      required={paymentStatus === 'pending'}
+                    <DatePicker
                       value={dueDate}
-                      onChange={e => setDueDate(e.target.value)}
-                      className="w-full px-2.5 py-1.5 rounded-xl glass-input text-xs text-amber-200 border-amber-500/50 focus:outline-none"
+                      onChange={val => setDueDate(val)}
+                      required={paymentStatus === 'pending'}
+                      placeholder="Select Due Date"
                     />
                   </div>
                 )}
@@ -910,15 +909,11 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           {/* Date & Description */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                {t('dateHeader')}
-              </label>
-              <input
-                type="date"
+              <DatePicker
+                label={t('dateHeader')}
                 required
                 value={date}
-                onChange={e => setDate(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl glass-input text-sm text-slate-100 focus:outline-none"
+                onChange={val => setDate(val)}
               />
             </div>
 
@@ -1132,8 +1127,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                 </label>
                 <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto">
                   {POPULAR_CROPS.map(c => {
-                    const label = `${c.name} / ${c.nameTa}`;
-                    const isSelected = newFieldCrop === label;
+                    const label = `${c.nameTa} (${c.name})`;
+                    const isSelected = newFieldCrop === label || newFieldCrop === `${c.name} / ${c.nameTa}`;
                     return (
                       <button
                         key={c.id}
@@ -1145,7 +1140,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                             : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
                         }`}
                       >
-                        {c.nameTa} ({c.name.split('/')[0].trim()})
+                        {c.nameTa} ({c.name})
                       </button>
                     );
                   })}

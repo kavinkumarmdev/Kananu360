@@ -9,6 +9,7 @@ import {
   TrendingUp,
   Phone,
   Trash2,
+  Edit2,
   Milk,
   History,
   TreePine,
@@ -31,7 +32,10 @@ import {
   type FieldTreeItem,
   type FieldCropItem,
   type FarmLivestock,
+  type FarmField,
 } from '../../types/finance';
+import { DatePicker } from '../common/DatePicker';
+import { SearchableSelect } from '../common/SearchableSelect';
 
 export const FarmDashboard: React.FC = () => {
   const {
@@ -42,10 +46,11 @@ export const FarmDashboard: React.FC = () => {
     familyMembers,
     treeHarvests,
     addField,
+    updateField,
     deleteField,
     addTreeToField,
     removeTreeFromField,
-    addCropToField,
+    startNewCropCycle,
     harvestCropFromField,
     recordTreeHarvest,
     completeCropCycle,
@@ -67,15 +72,35 @@ export const FarmDashboard: React.FC = () => {
   } = useFinance();
 
   // ==========================================
-  // NEW FIELD MODAL STATE
+  // FIELD MODAL STATE (ADD / EDIT)
   // ==========================================
   const [showFieldModal, setShowFieldModal] = useState<boolean>(false);
+  const [editingFieldId, setEditingFieldId] = useState<string | null>(null);
   const [fieldName, setFieldName] = useState<string>('');
   const [fieldArea, setFieldArea] = useState<string>('0.5');
   const [fieldSizeUnit, setFieldSizeUnit] = useState<'acres' | 'cents' | 'hectares' | 'sqft'>('acres');
   const [fieldNotes, setFieldNotes] = useState<string>('');
 
-  // Trees in New Field
+  // Crop & Tree Options for SearchableSelect
+  const cropSelectOptions = useMemo(() => {
+    return POPULAR_CROPS.map(c => ({
+      id: `${c.name} / ${c.nameTa}`,
+      value: `${c.name} / ${c.nameTa}`,
+      label: `${c.nameTa} (${c.name})`,
+      icon: '🌾',
+    }));
+  }, []);
+
+  const treeSelectOptions = useMemo(() => {
+    return POPULAR_TREES.map(t => ({
+      id: `${t.name} / ${t.nameTa}`,
+      value: `${t.name} / ${t.nameTa}`,
+      label: `${t.nameTa} (${t.name})`,
+      icon: t.icon || '🌳',
+    }));
+  }, []);
+
+  // Trees in Field
   interface TempTree {
     id: string;
     treeType: string;
@@ -86,18 +111,18 @@ export const FarmDashboard: React.FC = () => {
   const [tempTrees, setTempTrees] = useState<TempTree[]>([
     {
       id: 'init_tree_coco',
-      treeType: 'Coconut Tree / தென்னை மரம் (Coconut)',
+      treeType: 'Coconut Tree / தென்னை மரம்',
       count: 20,
       plantedDate: '2020-01-01',
       variety: 'Boundary Border Coconut (வரப்பு தென்னை)',
     },
   ]);
-  const [newTreeType, setNewTreeType] = useState<string>('Coconut Tree / தென்னை மரம் (Coconut)');
+  const [newTreeType, setNewTreeType] = useState<string>('Coconut Tree / தென்னை மரம்');
   const [newTreeCount, setNewTreeCount] = useState<string>('20');
   const [newTreePlantedDate, setNewTreePlantedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [newTreeVariety, setNewTreeVariety] = useState<string>('');
 
-  // Crops in New Field
+  // Crops in Field
   interface TempCrop {
     id: string;
     cropType: string;
@@ -110,14 +135,14 @@ export const FarmDashboard: React.FC = () => {
   const [tempCrops, setTempCrops] = useState<TempCrop[]>([
     {
       id: 'init_crp_1',
-      cropType: 'Turmeric / மஞ்சள் (Turmeric)',
+      cropType: 'Turmeric (Erode Local / BSR) / மஞ்சள்',
       isPrimary: true,
       startDate: new Date().toISOString().split('T')[0],
       variety: 'Erode Local Yellow',
       plantCount: 500,
     },
   ]);
-  const [newCropType, setNewCropType] = useState<string>('Small Onion / Shallot / சின்ன வெங்காயம் (Small Onion)');
+  const [newCropType, setNewCropType] = useState<string>('Small Onion / Shallots / சின்ன வெங்காயம்');
   const [newCropIsPrimary, setNewCropIsPrimary] = useState<boolean>(false);
   const [newCropStartDate, setNewCropStartDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [newCropVariety, setNewCropVariety] = useState<string>('');
@@ -275,12 +300,82 @@ export const FarmDashboard: React.FC = () => {
     });
   };
 
-  const handleCreateField = async (e: React.FormEvent) => {
+  const handleOpenAddField = () => {
+    setEditingFieldId(null);
+    setFieldName('');
+    setFieldArea('0.5');
+    setFieldSizeUnit('acres');
+    setFieldNotes('');
+    setTempTrees([
+      {
+        id: 'init_tree_coco',
+        treeType: 'Coconut Tree / தென்னை மரம்',
+        count: 20,
+        plantedDate: '2020-01-01',
+        variety: 'Boundary Border Coconut (வரப்பு தென்னை)',
+      },
+    ]);
+    setTempCrops([
+      {
+        id: 'init_crp_1',
+        cropType: 'Turmeric (Erode Local / BSR) / மஞ்சள்',
+        isPrimary: true,
+        startDate: new Date().toISOString().split('T')[0],
+        variety: 'Erode Local Yellow',
+        plantCount: 500,
+      },
+    ]);
+    setShowFieldModal(true);
+  };
+
+  const handleOpenEditField = (fld: FarmField) => {
+    setEditingFieldId(fld.id);
+    setFieldName(fld.name);
+    setFieldArea(String(fld.areaAcre));
+    setFieldSizeUnit(fld.sizeUnit || 'acres');
+    setFieldNotes(fld.notes || '');
+    setTempTrees(
+      fld.trees && fld.trees.length > 0
+        ? fld.trees.map(t => ({
+            id: t.id,
+            treeType: t.treeType,
+            count: t.count,
+            plantedDate: t.plantedDate,
+            variety: t.variety,
+          }))
+        : []
+    );
+    setTempCrops(
+      fld.crops && fld.crops.length > 0
+        ? fld.crops.map(c => ({
+            id: c.id,
+            cropType: c.cropType,
+            isPrimary: c.isPrimary,
+            startDate: c.startDate,
+            variety: c.variety,
+            plantCount: c.plantCount,
+            intercropType: c.intercropType,
+          }))
+        : fld.cropType
+        ? [
+            {
+              id: 'crp_edit_existing',
+              cropType: fld.cropType,
+              isPrimary: true,
+              startDate: new Date().toISOString().split('T')[0],
+            },
+          ]
+        : []
+    );
+    setShowFieldModal(true);
+  };
+
+  const handleSaveField = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fieldName.trim()) return;
 
     const finalCrops = tempCrops.map((c, idx) => ({
-      id: c.id,
+      id: c.id || `crp_${Date.now()}_${idx}`,
       cropType: c.cropType,
       isPrimary: idx === 0 && !tempCrops.some(x => x.isPrimary) ? true : c.isPrimary,
       startDate: c.startDate,
@@ -288,24 +383,36 @@ export const FarmDashboard: React.FC = () => {
       plantCount: c.plantCount,
     }));
 
-    const finalTrees = tempTrees.map(t => ({
-      id: t.id,
+    const finalTrees = tempTrees.map((t, idx) => ({
+      id: t.id || `tree_${Date.now()}_${idx}`,
       treeType: t.treeType,
       count: t.count,
       plantedDate: t.plantedDate,
       variety: t.variety,
     }));
 
-    await addField({
-      name: fieldName.trim(),
-      areaAcre: fieldArea,
-      sizeUnit: fieldSizeUnit,
-      color: '#10B981',
-      notes: fieldNotes.trim() || undefined,
-      trees: finalTrees,
-      crops: finalCrops,
-    });
+    if (editingFieldId) {
+      await updateField(editingFieldId, {
+        name: fieldName.trim(),
+        areaAcre: fieldArea,
+        sizeUnit: fieldSizeUnit,
+        notes: fieldNotes.trim() || undefined,
+        trees: finalTrees,
+        crops: finalCrops,
+      });
+    } else {
+      await addField({
+        name: fieldName.trim(),
+        areaAcre: fieldArea,
+        sizeUnit: fieldSizeUnit,
+        color: '#10B981',
+        notes: fieldNotes.trim() || undefined,
+        trees: finalTrees,
+        crops: finalCrops,
+      });
+    }
 
+    setEditingFieldId(null);
     setFieldName('');
     setFieldArea('0.5');
     setFieldSizeUnit('acres');
@@ -376,30 +483,28 @@ export const FarmDashboard: React.FC = () => {
     setCycleNotes('');
   };
 
-  // Start New Crop Season / Intercrop Cycle
+  // Start New Crop Season / Intercrop Cycle (Properly updates active primary crop and archives previous)
   const handleStartNewSeasonSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!startCycleFieldId || !newSeasonPrimaryCrop.trim()) return;
 
-    // Add Primary Crop
-    await addCropToField(startCycleFieldId, {
+    const primaryCrop = {
       cropType: newSeasonPrimaryCrop.trim(),
       isPrimary: true,
       startDate: newSeasonStartDate,
       variety: newSeasonPrimaryVariety.trim() || undefined,
       plantCount: newSeasonPrimaryCount ? parseInt(newSeasonPrimaryCount, 10) : undefined,
-    });
+    };
 
-    // If intercrop selected, add secondary crop
-    if (hasIntercrop && newSeasonIntercrop.trim()) {
-      await addCropToField(startCycleFieldId, {
-        cropType: newSeasonIntercrop.trim(),
-        isPrimary: false,
-        startDate: newSeasonStartDate,
-        plantCount: newSeasonIntercropCount ? parseInt(newSeasonIntercropCount, 10) : undefined,
-        intercropType: 'Parallel Intercrop (ஊடுபயிர்)',
-      });
-    }
+    const intercrop = hasIntercrop && newSeasonIntercrop.trim() ? {
+      cropType: newSeasonIntercrop.trim(),
+      isPrimary: false,
+      startDate: newSeasonStartDate,
+      plantCount: newSeasonIntercropCount ? parseInt(newSeasonIntercropCount, 10) : undefined,
+      intercropType: 'Parallel Intercrop (ஊடுபயிர்)',
+    } : undefined;
+
+    await startNewCropCycle(startCycleFieldId, primaryCrop, intercrop, true);
 
     try {
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
@@ -716,20 +821,20 @@ export const FarmDashboard: React.FC = () => {
               👨‍👩‍👦‍👦
             </div>
             <div>
-              <h2 className="text-base font-black text-white tracking-tight flex items-center gap-2">
-                <span>Family 4-Member Multi-Venture Ledger</span>
+              <h2 className="text-base font-black text-white tracking-tight flex items-center gap-2 flex-wrap">
+                <span>{t('familyRosterTitle')}</span>
                 <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
-                  2 Acres Farm + Corporate Careers
+                  {totalLandAcres > 0 ? `${totalLandAcres.toFixed(1)} ${t('acresUnit')} • ` : ''}{t('familyBadgeCorporate')}
                 </span>
               </h2>
               <p className="text-xs text-slate-400">
-                2 Sons in Company / Corporate Careers + Parents cultivating 2-Acre Farm Land & Livestock
+                {t('familyRosterSubtitle')}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <div className="px-3 py-1.5 rounded-xl bg-slate-950/60 border border-slate-800 text-xs font-mono text-emerald-300">
-              🌾 Total Farm Area: <span className="font-bold text-white">{totalLandAcres.toFixed(1)} Acres</span>
+              {t('totalFarmAreaLabel')} <span className="font-bold text-white">{totalLandAcres.toFixed(1)} {t('acresUnit')}</span>
             </div>
           </div>
         </div>
@@ -750,8 +855,12 @@ export const FarmDashboard: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <span className="text-2xl">{member.avatar}</span>
                       <div>
-                        <h4 className="font-bold text-sm text-white leading-tight">{member.name}</h4>
-                        <span className="text-[10px] text-slate-400 font-mono">{member.nameTa}</span>
+                        <h4 className="font-bold text-sm text-white leading-tight">
+                          {settings.language === 'ta' && member.nameTa ? member.nameTa : member.name}
+                        </h4>
+                        <span className="text-[10px] text-slate-400 font-mono">
+                          {settings.language === 'ta' ? member.name : member.nameTa}
+                        </span>
                       </div>
                     </div>
                     <span
@@ -763,31 +872,31 @@ export const FarmDashboard: React.FC = () => {
                           : 'bg-amber-950/90 text-amber-300 border border-amber-500/30'
                       }`}
                     >
-                      {isCompany ? '🏢 Corporate' : isFarm ? '🌾 2-Acre Farm' : '🐑 Dairy & Animals'}
+                      {isCompany ? t('familyBadgeCorporate') : isFarm ? t('familyBadgeFarm') : t('familyBadgeDairy')}
                     </span>
                   </div>
 
                   <p className="text-[11px] text-slate-300 font-medium pt-1">
-                    {member.occupationTitle}
+                    {settings.language === 'ta' && member.occupationTitleTa ? member.occupationTitleTa : member.occupationTitle}
                   </p>
                   <p className="text-[10px] text-slate-400 italic">
-                    {member.occupationTitleTa}
+                    {settings.language === 'ta' ? member.occupationTitle : member.occupationTitleTa}
                   </p>
                 </div>
 
                 <div className="pt-2 border-t border-slate-800/80 text-[10px] text-slate-400 flex items-center justify-between">
                   <span className="flex items-center gap-1 text-slate-400">
                     <Briefcase size={11} className="text-slate-500" />
-                    <span>Role:</span>
+                    <span>{t('familyRoleLabel')}:</span>
                   </span>
                   <span className="font-semibold text-white">
                     {member.relation === 'self'
-                      ? 'Tech Salary & Ledger'
+                      ? t('roleTechSalary')
                       : member.relation === 'brother'
-                      ? 'Company Earnings'
+                      ? t('roleCompanyEarnings')
                       : member.relation === 'father'
-                      ? 'Field & Tree Master'
-                      : 'Livestock & Milk Care'}
+                      ? t('roleFieldTreeMaster')
+                      : t('roleLivestockMilkCare')}
                   </span>
                 </div>
               </div>
@@ -801,16 +910,16 @@ export const FarmDashboard: React.FC = () => {
         <div>
           <h2 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
             <Sprout className="text-emerald-400 w-6 h-6" />
-            <span>2-Acre Farm Land & Livestock Hub</span>
+            <span>{totalLandAcres > 0 ? `${totalLandAcres.toFixed(1)} ${t('acresUnit')} ` : ''}{t('farmHubTitle')}</span>
           </h2>
           <p className="text-xs text-slate-400">
-            Partitioned fields (0.5 Acre, 1.5 Acre), permanent border trees, rotational crops & dairy livestock
+            {t('farmHubSubtitle')}
           </p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
           <button
-            onClick={() => setShowFieldModal(true)}
+            onClick={handleOpenAddField}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-glow-emerald transition cursor-pointer"
           >
             <Plus size={14} />
@@ -913,7 +1022,7 @@ export const FarmDashboard: React.FC = () => {
             </div>
           </div>
           <button
-            onClick={() => setShowFieldModal(true)}
+            onClick={handleOpenAddField}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-glow-emerald transition cursor-pointer"
           >
             <Plus size={13} />
@@ -928,7 +1037,7 @@ export const FarmDashboard: React.FC = () => {
             </div>
             <p className="text-slate-400 text-xs max-w-sm mx-auto">{t('noFieldsYet')}</p>
             <button
-              onClick={() => setShowFieldModal(true)}
+              onClick={handleOpenAddField}
               className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md transition cursor-pointer"
             >
               + {t('addNewField')}
@@ -1193,17 +1302,29 @@ export const FarmDashboard: React.FC = () => {
                       )}
                     </button>
 
-                    <button
-                      onClick={() => {
-                        if (confirm(`Delete field "${fld.name}"? This action cannot be undone.`)) {
-                          deleteField(fld.id);
-                        }
-                      }}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-950/30 transition cursor-pointer"
-                      title="Delete Field"
-                    >
-                      <Trash2 size={13} />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEditField(fld)}
+                        className="px-2 py-1 rounded-lg text-slate-300 hover:text-emerald-300 hover:bg-emerald-950/50 border border-slate-800 hover:border-emerald-500/30 transition cursor-pointer flex items-center gap-1 text-[11px] font-semibold"
+                        title="Edit Field Plot Details"
+                      >
+                        <Edit2 size={12} />
+                        <span>Edit</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          if (confirm(`Delete field "${fld.name}"? This action cannot be undone.`)) {
+                            deleteField(fld.id);
+                          }
+                        }}
+                        className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-950/30 transition cursor-pointer"
+                        title="Delete Field"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -1617,15 +1738,11 @@ export const FarmDashboard: React.FC = () => {
             <form onSubmit={handleRecordTreeHarvestSubmit} className="space-y-3.5">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Harvest Date *
-                  </label>
-                  <input
-                    type="date"
+                  <DatePicker
+                    label="Harvest Date"
                     required
                     value={treeHarvestDate}
-                    onChange={e => setTreeHarvestDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl glass-input text-xs text-slate-200 focus:outline-none"
+                    onChange={setTreeHarvestDate}
                   />
                 </div>
                 <div>
@@ -1766,15 +1883,11 @@ export const FarmDashboard: React.FC = () => {
             <form onSubmit={handleCompleteCropCycleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Season End Date *
-                  </label>
-                  <input
-                    type="date"
+                  <DatePicker
+                    label="Season End Date"
                     required
                     value={cycleEndDate}
-                    onChange={e => setCycleEndDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl glass-input text-xs text-slate-200 focus:outline-none"
+                    onChange={setCycleEndDate}
                   />
                 </div>
                 <div>
@@ -1926,15 +2039,11 @@ export const FarmDashboard: React.FC = () => {
 
             <form onSubmit={handleStartNewSeasonSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Sowing / Planting Date *
-                </label>
-                <input
-                  type="date"
+                <DatePicker
+                  label="Sowing / Planting Date"
                   required
                   value={newSeasonStartDate}
-                  onChange={e => setNewSeasonStartDate(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl glass-input text-xs text-slate-200 focus:outline-none"
+                  onChange={setNewSeasonStartDate}
                 />
               </div>
 
@@ -1948,17 +2057,14 @@ export const FarmDashboard: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="block text-[10px] text-slate-400 mb-1">Select Crop:</label>
-                    <select
+                    <SearchableSelect
                       value={newSeasonPrimaryCrop}
-                      onChange={e => setNewSeasonPrimaryCrop(e.target.value)}
-                      className="w-full px-2.5 py-1.5 rounded-lg glass-input text-xs text-emerald-300 font-semibold focus:outline-none bg-slate-900"
-                    >
-                      {POPULAR_CROPS.map(c => (
-                        <option key={c.id} value={`${c.name} / ${c.nameTa}`}>
-                          🌾 {c.nameTa} ({c.name.split('/')[0].trim()})
-                        </option>
-                      ))}
-                    </select>
+                      onChange={setNewSeasonPrimaryCrop}
+                      options={cropSelectOptions}
+                      placeholder="Search crop..."
+                      searchPlaceholder="Search crop name (பயிர் தேடு)..."
+                      allowCustom={true}
+                    />
                   </div>
                   <div>
                     <label className="block text-[10px] text-slate-400 mb-1">Saplings / Plant Count:</label>
@@ -2001,17 +2107,14 @@ export const FarmDashboard: React.FC = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                     <div>
                       <label className="block text-[10px] text-slate-400 mb-1">Intercrop Type:</label>
-                      <select
+                      <SearchableSelect
                         value={newSeasonIntercrop}
-                        onChange={e => setNewSeasonIntercrop(e.target.value)}
-                        className="w-full px-2.5 py-1.5 rounded-lg glass-input text-xs text-teal-300 font-semibold focus:outline-none bg-slate-900"
-                      >
-                        {POPULAR_CROPS.map(c => (
-                          <option key={c.id} value={`${c.name} / ${c.nameTa}`}>
-                            🌱 {c.nameTa} ({c.name.split('/')[0].trim()})
-                          </option>
-                        ))}
-                      </select>
+                        onChange={setNewSeasonIntercrop}
+                        options={cropSelectOptions}
+                        placeholder="Search intercrop..."
+                        searchPlaceholder="Search intercrop name (ஊடுபயிர் தேடு)..."
+                        allowCustom={true}
+                      />
                     </div>
                     <div>
                       <label className="block text-[10px] text-slate-400 mb-1">Intercrop Count:</label>
@@ -2154,7 +2257,7 @@ export const FarmDashboard: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL 5: ADD NEW FIELD (ACREAGE, CROPS, TREES) */}
+      {/* MODAL 5: ADD / EDIT FIELD PLOT (ACREAGE, CROPS, TREES) */}
       {/* ========================================================================= */}
       {showFieldModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
@@ -2162,10 +2265,13 @@ export const FarmDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-white text-base flex items-center gap-2 text-emerald-400">
                 <Sprout size={20} />
-                <span>{t('addNewField')}</span>
+                <span>{editingFieldId ? 'Edit Farm Land Plot (நிலப்பகுதி திருத்துதல்)' : t('addNewField')}</span>
               </h3>
               <button
-                onClick={() => setShowFieldModal(false)}
+                onClick={() => {
+                  setShowFieldModal(false);
+                  setEditingFieldId(null);
+                }}
                 className="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer"
               >
                 <X size={18} />
@@ -2173,10 +2279,10 @@ export const FarmDashboard: React.FC = () => {
             </div>
 
             <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/20 text-xs text-emerald-300 leading-relaxed">
-              🌾 Create fractional land plots (e.g. 1/2 Acre, 1/4 Acre, 1.5 Acre). Configure permanent border trees (e.g. 20 Coconut trees) and active rotational crops.
+              🌾 {editingFieldId ? 'Update acreage, boundary trees, active seasonal crops, and water notes for this farm plot.' : 'Create fractional land plots (e.g. 1/2 Acre, 1/4 Acre, 1.5 Acre). Configure permanent border trees and active rotational crops.'}
             </div>
 
-            <form onSubmit={handleCreateField} className="space-y-4">
+            <form onSubmit={handleSaveField} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
@@ -2227,7 +2333,7 @@ export const FarmDashboard: React.FC = () => {
                     <span>3) Permanent Boundary Trees</span>
                   </div>
                   <span className="text-[10px] text-slate-400">
-                    {tempTrees.length} tree batch(es) added
+                    {tempTrees.length} tree batch(es) configured
                   </span>
                 </div>
 
@@ -2261,23 +2367,20 @@ export const FarmDashboard: React.FC = () => {
                 <div className="p-2.5 rounded-xl bg-slate-950/40 border border-slate-800/80 space-y-2">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <div className="sm:col-span-2">
-                      <select
+                      <SearchableSelect
                         value={newTreeType}
-                        onChange={e => setNewTreeType(e.target.value)}
-                        className="w-full px-2.5 py-1.5 rounded-lg glass-input text-xs text-amber-900 dark:text-amber-200 font-black focus:outline-none bg-slate-100 dark:bg-slate-900"
-                      >
-                        {POPULAR_TREES.map(tree => (
-                          <option key={tree.id} value={`${tree.name} / ${tree.nameTa}`}>
-                            {tree.icon || '🌳'} {tree.nameTa}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={setNewTreeType}
+                        options={treeSelectOptions}
+                        placeholder="Select tree type..."
+                        searchPlaceholder="Search tree (மரம் தேடு)..."
+                        allowCustom={true}
+                      />
                     </div>
                     <div>
                       <input
                         type="number"
                         min="1"
-                        placeholder="e.g. 20"
+                        placeholder="Count e.g. 20"
                         value={newTreeCount}
                         onChange={e => setNewTreeCount(e.target.value)}
                         className="w-full px-2.5 py-1.5 rounded-lg glass-input text-xs text-amber-900 dark:text-amber-200 font-black focus:outline-none"
@@ -2285,24 +2388,25 @@ export const FarmDashboard: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="flex gap-2 items-center">
-                    <input
-                      type="date"
-                      value={newTreePlantedDate}
-                      onChange={e => setNewTreePlantedDate(e.target.value)}
-                      className="w-1/2 px-2 py-1 rounded-lg glass-input text-xs text-slate-700 dark:text-slate-300 font-semibold focus:outline-none"
-                    />
+                  <div className="flex gap-2 items-center flex-wrap sm:flex-nowrap">
+                    <div className="w-full sm:w-1/2">
+                      <DatePicker
+                        placeholder="Planted Date"
+                        value={newTreePlantedDate}
+                        onChange={setNewTreePlantedDate}
+                      />
+                    </div>
                     <input
                       type="text"
                       placeholder="Variety / location notes"
                       value={newTreeVariety}
                       onChange={e => setNewTreeVariety(e.target.value)}
-                      className="flex-1 px-2 py-1 rounded-lg glass-input text-xs text-slate-900 dark:text-white font-semibold focus:outline-none"
+                      className="w-full sm:flex-1 px-2 py-1.5 rounded-lg glass-input text-xs text-slate-900 dark:text-white font-semibold focus:outline-none"
                     />
                     <button
                       type="button"
                       onClick={handleAddTempTree}
-                      className="px-3 py-1 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shrink-0 cursor-pointer shadow-sm"
+                      className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shrink-0 cursor-pointer shadow-sm"
                     >
                       + Add
                     </button>
@@ -2358,31 +2462,29 @@ export const FarmDashboard: React.FC = () => {
                 )}
 
                 <div className="p-2.5 rounded-xl bg-slate-950/40 border border-slate-800/80 space-y-2">
-                  <select
+                  <SearchableSelect
                     value={newCropType}
-                    onChange={e => setNewCropType(e.target.value)}
-                    className="w-full px-2.5 py-1.5 rounded-lg glass-input text-xs text-emerald-300 font-medium focus:outline-none bg-slate-900"
-                  >
-                    {POPULAR_CROPS.map(crop => (
-                      <option key={crop.id} value={`${crop.name} / ${crop.nameTa}`}>
-                        🌾 {crop.nameTa} ({crop.name.split('/')[0].trim()})
-                      </option>
-                    ))}
-                  </select>
+                    onChange={setNewCropType}
+                    options={cropSelectOptions}
+                    placeholder="Select crop..."
+                    searchPlaceholder="Search crop name (பயிர் தேடு)..."
+                    allowCustom={true}
+                  />
 
                   <div className="flex flex-wrap gap-2 items-center">
-                    <input
-                      type="date"
-                      value={newCropStartDate}
-                      onChange={e => setNewCropStartDate(e.target.value)}
-                      className="px-2 py-1 rounded-lg glass-input text-xs text-slate-300 focus:outline-none"
-                    />
+                    <div className="w-full sm:w-44">
+                      <DatePicker
+                        placeholder="Start Date"
+                        value={newCropStartDate}
+                        onChange={setNewCropStartDate}
+                      />
+                    </div>
                     <input
                       type="number"
                       placeholder="Sapling count (e.g. 300)"
                       value={newCropPlantCount}
                       onChange={e => setNewCropPlantCount(e.target.value)}
-                      className="w-32 px-2 py-1 rounded-lg glass-input text-xs text-white focus:outline-none"
+                      className="w-32 px-2 py-1.5 rounded-lg glass-input text-xs text-white focus:outline-none"
                     />
                     <label className="flex items-center gap-1 text-[11px] text-amber-300 cursor-pointer">
                       <input
@@ -2396,7 +2498,7 @@ export const FarmDashboard: React.FC = () => {
                     <button
                       type="button"
                       onClick={handleAddTempCrop}
-                      className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs cursor-pointer"
+                      className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs cursor-pointer ml-auto"
                     >
                       + Add Crop
                     </button>
@@ -2420,7 +2522,10 @@ export const FarmDashboard: React.FC = () => {
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
                 <button
                   type="button"
-                  onClick={() => setShowFieldModal(false)}
+                  onClick={() => {
+                    setShowFieldModal(false);
+                    setEditingFieldId(null);
+                  }}
                   className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white cursor-pointer"
                 >
                   {t('cancel')}
@@ -2429,7 +2534,7 @@ export const FarmDashboard: React.FC = () => {
                   type="submit"
                   className="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-glow-emerald cursor-pointer"
                 >
-                  Save Field Plot
+                  {editingFieldId ? 'Update Field Plot' : 'Save Field Plot'}
                 </button>
               </div>
             </form>
@@ -2496,15 +2601,11 @@ export const FarmDashboard: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-300 mb-1">
-                        {t('removalDate')}:
-                      </label>
-                      <input
-                        type="date"
+                      <DatePicker
+                        label="Removal Date"
                         required
                         value={treeCutDate}
-                        onChange={e => setTreeCutDate(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl glass-input text-xs text-slate-200 focus:outline-none"
+                        onChange={setTreeCutDate}
                       />
                     </div>
                   </div>
@@ -2605,15 +2706,11 @@ export const FarmDashboard: React.FC = () => {
 
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-300 mb-1">
-                        {t('harvestDate')}:
-                      </label>
-                      <input
-                        type="date"
+                      <DatePicker
+                        label="Harvest Date"
                         required
                         value={cropHarvestDate}
-                        onChange={e => setCropHarvestDate(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl glass-input text-xs text-slate-200 focus:outline-none"
+                        onChange={setCropHarvestDate}
                       />
                     </div>
                     <div>
@@ -2687,20 +2784,15 @@ export const FarmDashboard: React.FC = () => {
 
             <form onSubmit={handleQuickAddTree} className="space-y-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Select Tree Species:
-                </label>
-                <select
+                <SearchableSelect
+                  label="Select Tree Species"
                   value={quickTreeType}
-                  onChange={e => setQuickTreeType(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl glass-input text-xs text-amber-300 font-semibold focus:outline-none bg-slate-900"
-                >
-                  {POPULAR_TREES.map(tree => (
-                    <option key={tree.id} value={`${tree.name} / ${tree.nameTa}`}>
-                      {tree.icon || '🌳'} {tree.nameTa}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setQuickTreeType}
+                  options={treeSelectOptions}
+                  placeholder="Select tree type..."
+                  searchPlaceholder="Search tree (மரம் தேடு)..."
+                  allowCustom={true}
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
@@ -2718,14 +2810,10 @@ export const FarmDashboard: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Planting Date:
-                  </label>
-                  <input
-                    type="date"
+                  <DatePicker
+                    label="Planting Date"
                     value={quickTreePlantedDate}
-                    onChange={e => setQuickTreePlantedDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl glass-input text-xs text-slate-200 focus:outline-none"
+                    onChange={setQuickTreePlantedDate}
                   />
                 </div>
               </div>

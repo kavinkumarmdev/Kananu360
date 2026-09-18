@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import type {
   Transaction,
   Category,
@@ -113,7 +113,12 @@ interface FinanceContextType {
   removeTreeFromField: (fieldId: string, treeId: string, countToRemove: number, reason: string, date: string, incomeEarned?: number, notes?: string) => Promise<void>;
   recordTreeHarvest: (fieldId: string, treeId: string, harvestData: Omit<TreeHarvestEntry, 'id' | 'fieldId' | 'treeId'>) => Promise<void>;
   addCropToField: (fieldId: string, crop: Omit<FieldCropItem, 'id'>) => Promise<void>;
-  startNewCropCycle: (fieldId: string, cropData: Omit<FieldCropItem, 'id'>) => Promise<void>;
+  startNewCropCycle: (
+    fieldId: string,
+    primaryCrop: Omit<FieldCropItem, 'id'>,
+    intercrop?: Omit<FieldCropItem, 'id'>,
+    archiveCurrentActive?: boolean
+  ) => Promise<void>;
   harvestCropFromField: (fieldId: string, cropId: string, endDate: string, harvestYield?: string, harvestIncome?: number, reason?: string, notes?: string) => Promise<void>;
   completeCropCycle: (fieldId: string, cropId: string, harvestData: { endDate: string; harvestYield?: string; harvestIncome?: number; totalInvestment?: number; reason?: string; notes?: string }) => Promise<void>;
   setPrimaryCrop: (fieldId: string, cropId: string) => Promise<void>;
@@ -261,6 +266,109 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       metaTheme.setAttribute('content', isLight ? '#f8fafc' : '#020617');
     }
   }, [settings]);
+
+  // Non-blocking initial background pull from Google Sheets on app startup
+  useEffect(() => {
+    if (settings.sheetUrl && settings.autoSync !== false) {
+      GoogleSheetApiService.fetchAllData(settings.sheetUrl)
+        .then(res => {
+          if (res.status === 'success' && res.data) {
+            if (res.data.transactions && res.data.transactions.length > 0) setTransactions(res.data.transactions);
+            if (res.data.familyMembers && res.data.familyMembers.length > 0) setFamilyMembers(res.data.familyMembers);
+            if (res.data.categories && res.data.categories.length > 0) setCategories(res.data.categories);
+            if (res.data.accounts && res.data.accounts.length > 0) setAccounts(res.data.accounts);
+            if (res.data.budgets && res.data.budgets.length > 0) setBudgets(res.data.budgets);
+            if (res.data.goals && res.data.goals.length > 0) setGoals(res.data.goals);
+            if (res.data.loans && res.data.loans.length > 0) setLoans(res.data.loans);
+            if (res.data.savings && res.data.savings.length > 0) setSavings(res.data.savings);
+            if (res.data.fields && res.data.fields.length > 0) setFields(res.data.fields);
+            if (res.data.treeHarvests && res.data.treeHarvests.length > 0) setTreeHarvests(res.data.treeHarvests);
+            if (res.data.livestock && res.data.livestock.length > 0) setLivestock(res.data.livestock);
+            if (res.data.workers && res.data.workers.length > 0) setWorkers(res.data.workers);
+
+            const syncedAt = new Date().toLocaleString();
+            setSyncState({ status: 'success', lastSynced: syncedAt, pendingChangesCount: 0 });
+            setSettings(prev => ({ ...prev, lastSyncedAt: syncedAt }));
+          }
+        })
+        .catch(err => {
+          console.warn('Initial cloud sync background check:', err);
+        });
+    }
+  }, []);
+
+  // Automatic debounced sync whenever any data updates
+  const isInitialMount = useRef(true);
+  const syncDebounceTimer = useRef<any>(null);
+
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    if (!settings.sheetUrl || settings.autoSync === false) return;
+
+    if (syncDebounceTimer.current) {
+      clearTimeout(syncDebounceTimer.current);
+    }
+
+    syncDebounceTimer.current = setTimeout(() => {
+      const payload: SheetFullPayload = {
+        transactions,
+        familyMembers,
+        fields,
+        treeHarvests,
+        livestock,
+        workers,
+        categories,
+        accounts,
+        budgets,
+        goals,
+        loans,
+        savings,
+        settings: {
+          currency: settings.currency,
+          currencySymbol: settings.currencySymbol,
+          userName: settings.userName,
+        },
+      };
+
+      setSyncState(prev => ({ ...prev, status: 'syncing' }));
+      GoogleSheetApiService.syncAllToSheet(settings.sheetUrl, payload)
+        .then(res => {
+          if (res.status === 'success') {
+            const syncedAt = new Date().toLocaleString();
+            setSyncState({ status: 'success', lastSynced: syncedAt, pendingChangesCount: 0 });
+            setSettings(prev => ({ ...prev, lastSyncedAt: syncedAt }));
+          } else {
+            setSyncState(prev => ({ ...prev, status: 'error', errorMessage: res.message }));
+          }
+        })
+        .catch(err => {
+          setSyncState(prev => ({ ...prev, status: 'error', errorMessage: err.message || 'Auto sync failed' }));
+        });
+    }, 1500);
+
+    return () => {
+      if (syncDebounceTimer.current) clearTimeout(syncDebounceTimer.current);
+    };
+  }, [
+    transactions,
+    fields,
+    accounts,
+    categories,
+    livestock,
+    workers,
+    familyMembers,
+    treeHarvests,
+    loans,
+    savings,
+    budgets,
+    goals,
+    settings.sheetUrl,
+    settings.autoSync,
+  ]);
 
   // Toast handlers
   const addToast = useCallback((message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
@@ -1016,9 +1124,58 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     addToast(`Harvest of ${harvestData.quantityHarvested} ${harvestData.unit} recorded! (₹${harvestData.totalIncome}) 🥥`, 'success');
   };
 
-  // Start New Seasonal Crop Cycle (supports Intercropping & Sapling Count)
-  const startNewCropCycle = async (fieldId: string, cropData: Omit<FieldCropItem, 'id'>) => {
-    await addCropToField(fieldId, cropData);
+  // Start New Seasonal Crop Cycle (supports Primary + Intercrops, replaces or updates active seasonal crops)
+  const startNewCropCycle = async (
+    fieldId: string,
+    primaryCrop: Omit<FieldCropItem, 'id'>,
+    intercrop?: Omit<FieldCropItem, 'id'>,
+    archiveCurrentActive = false
+  ) => {
+    setFields(prev => prev.map(f => {
+      if (f.id !== fieldId) return f;
+
+      const newPrimary: FieldCropItem = {
+        ...primaryCrop,
+        id: generateId('crp'),
+        isPrimary: true,
+      };
+
+      const newCrops: FieldCropItem[] = [newPrimary];
+
+      if (intercrop && intercrop.cropType) {
+        newCrops.push({
+          ...intercrop,
+          id: generateId('crp'),
+          isPrimary: false,
+        });
+      }
+
+      let history = f.cropHistory || [];
+      if (archiveCurrentActive && f.crops && f.crops.length > 0) {
+        const archivedEntries: CropHistoryEntry[] = f.crops.map(oldC => ({
+          id: generateId('crphist'),
+          cropType: oldC.cropType,
+          isPrimary: oldC.isPrimary,
+          startDate: oldC.startDate,
+          endDate: new Date().toISOString().split('T')[0],
+          reason: 'Season rotation / புது பயிர் பருவம் துவக்கம்',
+          notes: oldC.variety ? `Variety: ${oldC.variety}` : undefined,
+        }));
+        history = [...archivedEntries, ...history];
+      }
+
+      const secondaryList = newCrops.filter(c => !c.isPrimary).map(c => c.cropType);
+
+      return {
+        ...f,
+        crops: newCrops,
+        cropType: newPrimary.cropType,
+        secondaryCrops: secondaryList,
+        cropHistory: history,
+      };
+    }));
+
+    addToast(`New crop season started with "${primaryCrop.cropType}"! 🌾🌱`, 'success');
   };
 
   // Complete Crop Cycle with Comprehensive Profit & Loss Calculation

@@ -23,8 +23,8 @@ export const LoginPage: React.FC = () => {
   const { login, isLoading } = useAuth();
   const { settings, updateSettings, t } = useFinance();
 
-  const [usernameOrEmail, setUsernameOrEmail] = useState<string>('kavin');
-  const [password, setPassword] = useState<string>('kavin');
+  const [usernameOrEmail, setUsernameOrEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [rememberMe, setRememberMe] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -108,7 +108,7 @@ export const LoginPage: React.FC = () => {
           <button
             type="button"
             onClick={handleToggleTheme}
-            className="flex items-center gap-1.5 p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-xs font-semibold text-slate-200 transition shadow-sm hover:border-indigo-500/50"
+            className="flex items-center gap-1.5 p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-xs font-semibold text-slate-200 transition shadow-sm hover:border-indigo-500/50 cursor-pointer"
             title={settings.theme === 'light' ? 'Switch to Dark Mode (🌙)' : 'Switch to Light Mode (☀️)'}
           >
             {settings.theme === 'light' ? (
@@ -121,7 +121,7 @@ export const LoginPage: React.FC = () => {
           <button
             type="button"
             onClick={handleToggleLanguage}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-xs font-semibold text-slate-200 transition shadow-sm hover:border-indigo-500/50"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-xs font-semibold text-slate-200 transition shadow-sm hover:border-indigo-500/50 cursor-pointer"
             title="Switch English / தமிழ்"
           >
             <Globe size={15} className="text-indigo-400" />
@@ -136,7 +136,7 @@ export const LoginPage: React.FC = () => {
         <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center my-auto">
           {/* Left Column: System Highlights & Features */}
           <div className="lg:col-span-6 space-y-4 lg:space-y-5 text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-950/70 border border-indigo-500/40 text-indigo-300 text-xs font-semibold">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-950/80 border border-indigo-500/40 text-indigo-300 text-xs font-semibold shadow-inner">
               <Sparkles size={13} className="text-indigo-400" />
               <span>
                 {settings.language === 'ta'
@@ -226,17 +226,17 @@ export const LoginPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: Standard Username & Password Login Card */}
+          {/* Right Column: Clean Username & Password Login Card */}
           <div className="lg:col-span-6 w-full max-w-md mx-auto">
-            <div className="glass-panel rounded-3xl p-5 sm:p-6 lg:p-7 border border-slate-800/90 shadow-2xl relative">
+            <div className="glass-panel rounded-3xl p-6 sm:p-7 border border-indigo-500/20 bg-slate-900/80 shadow-2xl backdrop-blur-xl relative">
               <div className="text-center space-y-1 mb-5">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white flex items-center justify-center mx-auto shadow-glow mb-2.5">
-                  <Lock size={19} />
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-emerald-500 text-white flex items-center justify-center mx-auto shadow-glow mb-2.5">
+                  <Lock size={20} />
                 </div>
                 <h2 className="text-lg sm:text-xl font-bold text-white">
                   {settings.language === 'ta' ? 'உள்நுழையவும்' : 'Welcome Back'}
                 </h2>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-xs text-slate-400">
                   {settings.language === 'ta'
                     ? 'உங்கள் பயனர் பெயர் மற்றும் கடவுச்சொல்லை உள்ளிடவும்.'
                     : 'Enter your username and password to access your account.'}
@@ -252,9 +252,9 @@ export const LoginPage: React.FC = () => {
               )}
 
               {/* Sign In Form */}
-              <form onSubmit={handleSignIn} className="space-y-3.5">
+              <form onSubmit={handleSignIn} className="space-y-4">
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
                     {t('authEmailOrUsername')}
                   </label>
                   <div className="relative">
@@ -275,8 +275,8 @@ export const LoginPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
                       {t('authPassword')}
                     </label>
                   </div>
@@ -296,7 +296,7 @@ export const LoginPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition p-1"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition p-1 cursor-pointer"
                       tabIndex={-1}
                     >
                       {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -310,7 +310,7 @@ export const LoginPage: React.FC = () => {
                       type="checkbox"
                       checked={rememberMe}
                       onChange={e => setRememberMe(e.target.checked)}
-                      className="w-3.5 h-3.5 rounded border-slate-700 bg-slate-900 text-indigo-600 focus:ring-indigo-500"
+                      className="w-4 h-4 rounded border-slate-700 bg-slate-900 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                     />
                     <span>{t('authRememberMe')}</span>
                   </label>
@@ -319,7 +319,7 @@ export const LoginPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold text-sm shadow-glow flex items-center justify-center gap-2 transition-all transform active:scale-98 disabled:opacity-50"
+                  className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-indigo-600 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold text-sm shadow-glow flex items-center justify-center gap-2 transition-all transform active:scale-98 disabled:opacity-50 cursor-pointer"
                 >
                   {isLoading ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -331,21 +331,6 @@ export const LoginPage: React.FC = () => {
                   )}
                 </button>
               </form>
-
-              {/* Quick Demo Credentials Footer Info */}
-              <div className="mt-4 pt-3 border-t border-slate-800/80 text-center">
-                <p className="text-[10px] text-slate-500">
-                  {settings.language === 'ta' ? (
-                    <>
-                      இயல்புநிலை: பயனர் பெயர் <span className="text-slate-300 font-mono">kavin</span> | கடவுச்சொல் <span className="text-slate-300 font-mono">kavin</span>
-                    </>
-                  ) : (
-                    <>
-                      Default Login: Username <span className="text-slate-300 font-mono">kavin</span> | Password <span className="text-slate-300 font-mono">kavin</span>
-                    </>
-                  )}
-                </p>
-              </div>
             </div>
           </div>
         </div>
