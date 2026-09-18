@@ -118,7 +118,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div
           onClick={() => {
             if (settings.sheetUrl) {
-              syncWithGoogleSheet('push');
+              syncWithGoogleSheet('smart');
             } else {
               setActiveTab('settings');
             }

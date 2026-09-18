@@ -97,7 +97,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={() => {
               if (settings.sheetUrl) {
-                syncWithGoogleSheet('push');
+                syncWithGoogleSheet('smart');
               } else {
                 setActiveTab('settings');
               }

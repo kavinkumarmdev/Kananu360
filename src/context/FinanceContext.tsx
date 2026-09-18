@@ -26,7 +26,7 @@ import type { TranslationKey } from '../utils/i18n';
 import { useTranslation } from '../utils/i18n';
 import { StorageService } from '../services/storage';
 import { GoogleSheetApiService, type SheetFullPayload } from '../services/googleSheetApi';
-import { generateId } from '../utils/formatters';
+import { generateId, mergeCollectionsById } from '../utils/formatters';
 
 export interface ToastMessage {
   id: string;
@@ -267,27 +267,52 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [settings]);
 
-  // Startup background pull ONLY if user explicitly enabled autoSync
+  // On app startup, quietly fetch & smart-merge remote data so mobile edits appear on laptop
   useEffect(() => {
-    if (settings.sheetUrl && settings.autoSync === true) {
+    if (settings.sheetUrl) {
       GoogleSheetApiService.fetchAllData(settings.sheetUrl)
         .then(res => {
           if (res.status === 'success' && res.data) {
-            if (res.data.transactions && res.data.transactions.length > 0) setTransactions(res.data.transactions);
-            if (res.data.familyMembers && res.data.familyMembers.length > 0) setFamilyMembers(res.data.familyMembers);
-            if (res.data.categories && res.data.categories.length > 0) setCategories(res.data.categories);
-            if (res.data.accounts && res.data.accounts.length > 0) setAccounts(res.data.accounts);
-            if (res.data.budgets && res.data.budgets.length > 0) setBudgets(res.data.budgets);
-            if (res.data.goals && res.data.goals.length > 0) setGoals(res.data.goals);
-            if (res.data.loans && res.data.loans.length > 0) setLoans(res.data.loans);
-            if (res.data.savings && res.data.savings.length > 0) setSavings(res.data.savings);
-            if (res.data.fields && res.data.fields.length > 0) setFields(res.data.fields);
-            if (res.data.treeHarvests && res.data.treeHarvests.length > 0) setTreeHarvests(res.data.treeHarvests);
-            if (res.data.livestock && res.data.livestock.length > 0) setLivestock(res.data.livestock);
-            if (res.data.workers && res.data.workers.length > 0) setWorkers(res.data.workers);
+            // Smart merge each collection by unique ID so data created on other devices is loaded
+            if (Array.isArray(res.data.fields) && res.data.fields.length > 0) {
+              setFields(prev => mergeCollectionsById(prev, res.data!.fields!));
+            }
+            if (Array.isArray(res.data.transactions) && res.data.transactions.length > 0) {
+              setTransactions(prev => mergeCollectionsById(prev, res.data!.transactions!));
+            }
+            if (Array.isArray(res.data.accounts) && res.data.accounts.length > 0) {
+              setAccounts(prev => mergeCollectionsById(prev, res.data!.accounts!));
+            }
+            if (Array.isArray(res.data.loans) && res.data.loans.length > 0) {
+              setLoans(prev => mergeCollectionsById(prev, res.data!.loans!));
+            }
+            if (Array.isArray(res.data.savings) && res.data.savings.length > 0) {
+              setSavings(prev => mergeCollectionsById(prev, res.data!.savings!));
+            }
+            if (Array.isArray(res.data.treeHarvests) && res.data.treeHarvests.length > 0) {
+              setTreeHarvests(prev => mergeCollectionsById(prev, res.data!.treeHarvests!));
+            }
+            if (Array.isArray(res.data.livestock) && res.data.livestock.length > 0) {
+              setLivestock(prev => mergeCollectionsById(prev, res.data!.livestock!));
+            }
+            if (Array.isArray(res.data.workers) && res.data.workers.length > 0) {
+              setWorkers(prev => mergeCollectionsById(prev, res.data!.workers!));
+            }
+            if (Array.isArray(res.data.familyMembers) && res.data.familyMembers.length > 0) {
+              setFamilyMembers(prev => mergeCollectionsById(prev, res.data!.familyMembers!));
+            }
+            if (Array.isArray(res.data.categories) && res.data.categories.length > 0) {
+              setCategories(prev => mergeCollectionsById(prev, res.data!.categories!));
+            }
+            if (Array.isArray(res.data.budgets) && res.data.budgets.length > 0) {
+              setBudgets(prev => mergeCollectionsById(prev, res.data!.budgets!));
+            }
+            if (Array.isArray(res.data.goals) && res.data.goals.length > 0) {
+              setGoals(prev => mergeCollectionsById(prev, res.data!.goals!));
+            }
 
             const syncedAt = new Date().toLocaleString();
-            setSyncState({ status: 'success', lastSynced: syncedAt, pendingChangesCount: 0 });
+            setSyncState(prev => ({ ...prev, status: 'success', lastSynced: syncedAt }));
             setSettings(prev => ({ ...prev, lastSyncedAt: syncedAt }));
           }
         })
@@ -295,7 +320,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
           console.warn('Initial cloud sync background check:', err);
         });
     }
-  }, []);
+  }, [settings.sheetUrl]);
 
   // Track local updates and only auto-sync if autoSync is explicitly enabled
   const isInitialMount = useRef(true);
@@ -761,6 +786,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const hasCoconut = coconutTree !== undefined ? true : fieldData.hasBoundaryCoconut;
     const coconutCount = coconutTree ? coconutTree.count : fieldData.boundaryTreeCount;
 
+    const nowIso = new Date().toISOString();
     const newField: FarmField = {
       ...fieldData,
       id: generateId('fld'),
@@ -772,6 +798,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       crops: fieldData.crops || [],
       treeHistory: fieldData.treeHistory || [],
       cropHistory: fieldData.cropHistory || [],
+      createdAt: nowIso,
+      updatedAt: nowIso,
     };
 
     // If trees were added on creation, log initial 'planted' history if desired
@@ -795,7 +823,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setFields(prev => prev.map(f => {
       if (f.id !== id) return f;
 
-      const merged = { ...f, ...fieldData };
+      const merged = { ...f, ...fieldData, updatedAt: new Date().toISOString() };
 
       // Sync backward compatibility cropType & secondaryCrops
       if (fieldData.crops !== undefined) {
@@ -1647,7 +1675,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return await GoogleSheetApiService.testConnection(url);
   };
 
-  const syncWithGoogleSheet = async (mode: 'push' | 'pull' | 'smart' = 'push'): Promise<boolean> => {
+  const syncWithGoogleSheet = async (mode: 'push' | 'pull' | 'smart' = 'smart'): Promise<boolean> => {
     if (!settings.sheetUrl) {
       addToast('Please enter your Google Apps Script URL in Settings', 'warning');
       return false;
@@ -1678,7 +1706,89 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
           addToast(settings.language === 'ta' ? 'கூகிள் தாளிலிருந்து தரவு புதுப்பிக்கப்பட்டது!' : 'Synchronized data from Google Sheet', 'success');
           return true;
         }
+      } else if (mode === 'smart') {
+        // Fetch remote data first to merge changes from other devices (e.g. mobile <-> laptop)
+        let mergedTx = transactions;
+        let mergedMembers = familyMembers;
+        let mergedFlds = fields;
+        let mergedHarvests = treeHarvests;
+        let mergedStock = livestock;
+        let mergedWrk = workers;
+        let mergedCats = categories;
+        let mergedAccs = accounts;
+        let mergedBdg = budgets;
+        let mergedGls = goals;
+        let mergedLns = loans;
+        let mergedSav = savings;
+
+        try {
+          const pullRes = await GoogleSheetApiService.fetchAllData(settings.sheetUrl);
+          if (pullRes.status === 'success' && pullRes.data) {
+            mergedTx = mergeCollectionsById(transactions, pullRes.data.transactions || []);
+            mergedMembers = mergeCollectionsById(familyMembers, pullRes.data.familyMembers || []);
+            mergedFlds = mergeCollectionsById(fields, pullRes.data.fields || []);
+            mergedHarvests = mergeCollectionsById(treeHarvests, pullRes.data.treeHarvests || []);
+            mergedStock = mergeCollectionsById(livestock, pullRes.data.livestock || []);
+            mergedWrk = mergeCollectionsById(workers, pullRes.data.workers || []);
+            mergedCats = mergeCollectionsById(categories, pullRes.data.categories || []);
+            mergedAccs = mergeCollectionsById(accounts, pullRes.data.accounts || []);
+            mergedBdg = mergeCollectionsById(budgets, pullRes.data.budgets || []);
+            mergedGls = mergeCollectionsById(goals, pullRes.data.goals || []);
+            mergedLns = mergeCollectionsById(loans, pullRes.data.loans || []);
+            mergedSav = mergeCollectionsById(savings, pullRes.data.savings || []);
+
+            // Update local state with merged collections
+            setTransactions(mergedTx);
+            setFamilyMembers(mergedMembers);
+            setFields(mergedFlds);
+            setTreeHarvests(mergedHarvests);
+            setLivestock(mergedStock);
+            setWorkers(mergedWrk);
+            setCategories(mergedCats);
+            setAccounts(mergedAccs);
+            setBudgets(mergedBdg);
+            setGoals(mergedGls);
+            setLoans(mergedLns);
+            setSavings(mergedSav);
+          }
+        } catch (fetchErr) {
+          console.warn('Smart sync initial pull fallback:', fetchErr);
+        }
+
+        const payload: SheetFullPayload = {
+          transactions: mergedTx,
+          familyMembers: mergedMembers,
+          fields: mergedFlds,
+          treeHarvests: mergedHarvests,
+          livestock: mergedStock,
+          workers: mergedWrk,
+          categories: mergedCats,
+          accounts: mergedAccs,
+          budgets: mergedBdg,
+          goals: mergedGls,
+          loans: mergedLns,
+          savings: mergedSav,
+          settings: [
+            {
+              currency: settings.currency,
+              currencySymbol: settings.currencySymbol,
+              userName: settings.userName,
+            },
+          ],
+        };
+
+        const res = await GoogleSheetApiService.syncAllToSheet(settings.sheetUrl, payload);
+        if (res.status === 'success') {
+          const syncedAt = new Date().toLocaleString();
+          setSyncState({ status: 'success', lastSynced: syncedAt, pendingChangesCount: 0 });
+          setSettings(prev => ({ ...prev, lastSyncedAt: syncedAt }));
+          addToast(settings.language === 'ta' ? 'கூகிள் தாளுடன் வெற்றிகரமாக ஒத்திசைக்கப்பட்டது (இருவழி இணைப்பு)!' : 'Synchronized successfully with Google Sheet (Two-way sync)!', 'success');
+          return true;
+        } else {
+          throw new Error(res.message || 'Sync failed');
+        }
       } else {
+        // Pure push
         const payload: SheetFullPayload = {
           transactions,
           familyMembers,

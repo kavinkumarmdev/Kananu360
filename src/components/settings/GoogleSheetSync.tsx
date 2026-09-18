@@ -126,7 +126,7 @@ export const GoogleSheetSync: React.FC = () => {
           {settings.sheetUrl && (
             <div className="flex flex-wrap items-center gap-2.5">
               <button
-                onClick={() => syncWithGoogleSheet('push')}
+                onClick={() => syncWithGoogleSheet('smart')}
                 disabled={syncState.status === 'syncing'}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-xs font-bold transition disabled:opacity-50 cursor-pointer shadow-sm ${
                   syncState.pendingChangesCount > 0

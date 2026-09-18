@@ -84,3 +84,38 @@ export const PAYMENT_MODES: { id: string; label: string; icon: string }[] = [
   { id: 'cash', label: 'Cash in Hand', icon: 'Coins' },
   { id: 'other', label: 'Other', icon: 'Wallet' },
 ];
+
+/**
+ * Merge local and remote array of items by unique id, preserving newer updates
+ */
+export const mergeCollectionsById = <T extends { id?: string; updatedAt?: string; createdAt?: string; date?: string }>(
+  localList: T[] = [],
+  remoteList: T[] = []
+): T[] => {
+  const map = new Map<string, T>();
+
+  // 1. First add all remote items
+  (remoteList || []).forEach(item => {
+    if (item && item.id) {
+      map.set(item.id, item);
+    }
+  });
+
+  // 2. Add or update with local items
+  (localList || []).forEach(item => {
+    if (item && item.id) {
+      if (!map.has(item.id)) {
+        map.set(item.id, item);
+      } else {
+        const remoteItem = map.get(item.id)!;
+        const localTime = new Date((item as any).updatedAt || (item as any).createdAt || (item as any).date || 0).getTime();
+        const remoteTime = new Date((remoteItem as any).updatedAt || (remoteItem as any).createdAt || (remoteItem as any).date || 0).getTime();
+        if (localTime >= remoteTime) {
+          map.set(item.id, item);
+        }
+      }
+    }
+  });
+
+  return Array.from(map.values());
+};

@@ -233,7 +233,7 @@ function getFieldHeaders() {
   return [
     'id', 'name', 'areaAcre', 'sizeUnit', 'color', 'hasBoundaryCoconut', 
     'boundaryTreeCount', 'cropType', 'secondaryCrops', 'trees', 'crops', 
-    'treeHistory', 'cropHistory', 'notes'
+    'treeHistory', 'cropHistory', 'notes', 'createdAt', 'updatedAt'
   ];
 }
 

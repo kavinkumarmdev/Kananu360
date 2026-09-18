@@ -334,6 +334,8 @@ export interface FarmField {
   secondaryCrops?: string[]; // Intercropping / Parallel crops
   hasBoundaryCoconut?: boolean;
   boundaryTreeCount?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export type LivestockType = 'cow' | 'sheep' | 'goat' | 'hen' | 'duck' | 'buffalo' | 'poultry' | 'other';

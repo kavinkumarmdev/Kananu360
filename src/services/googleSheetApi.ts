@@ -95,26 +95,34 @@ export const GoogleSheetApiService = {
       throw new Error('Google Sheet URL is not configured.');
     }
 
+    // Ensure settings is always formatted as an array of { key, value, updatedAt } for Google Sheet
+    let settingsArray: any[] = [];
+    if (Array.isArray(payload.settings)) {
+      settingsArray = payload.settings;
+    } else if (payload.settings && typeof payload.settings === 'object') {
+      settingsArray = Object.entries(payload.settings).map(([key, value]) => ({
+        key,
+        value: typeof value === 'object' ? JSON.stringify(value) : String(value ?? ''),
+        updatedAt: new Date().toISOString(),
+      }));
+    }
+
     const bodyData = {
       action: 'syncAll',
       payload: {
-        transactions: payload.transactions,
-        familyMembers: payload.familyMembers,
-        fields: payload.fields,
-        treeHarvests: payload.treeHarvests,
-        livestock: payload.livestock,
-        workers: payload.workers,
-        categories: payload.categories,
-        accounts: payload.accounts,
-        budgets: payload.budgets,
-        goals: payload.goals,
-        loans: payload.loans || [],
-        savings: payload.savings || [],
-        settings: Array.isArray(payload.settings)
-          ? payload.settings
-          : payload.settings
-          ? [payload.settings]
-          : [],
+        transactions: Array.isArray(payload.transactions) ? payload.transactions : [],
+        familyMembers: Array.isArray(payload.familyMembers) ? payload.familyMembers : [],
+        fields: Array.isArray(payload.fields) ? payload.fields : [],
+        treeHarvests: Array.isArray(payload.treeHarvests) ? payload.treeHarvests : [],
+        livestock: Array.isArray(payload.livestock) ? payload.livestock : [],
+        workers: Array.isArray(payload.workers) ? payload.workers : [],
+        categories: Array.isArray(payload.categories) ? payload.categories : [],
+        accounts: Array.isArray(payload.accounts) ? payload.accounts : [],
+        budgets: Array.isArray(payload.budgets) ? payload.budgets : [],
+        goals: Array.isArray(payload.goals) ? payload.goals : [],
+        loans: Array.isArray(payload.loans) ? payload.loans : [],
+        savings: Array.isArray(payload.savings) ? payload.savings : [],
+        settings: settingsArray,
       },
     };
 
