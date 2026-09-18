@@ -128,10 +128,20 @@ export const GoogleSheetSync: React.FC = () => {
               <button
                 onClick={() => syncWithGoogleSheet('push')}
                 disabled={syncState.status === 'syncing'}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white text-xs font-bold shadow-glow transition disabled:opacity-50"
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-xs font-bold transition disabled:opacity-50 cursor-pointer shadow-sm ${
+                  syncState.pendingChangesCount > 0
+                    ? 'bg-gradient-to-r from-amber-500 via-indigo-600 to-indigo-500 hover:from-amber-400 hover:to-indigo-400 shadow-glow pulse-glow-amber'
+                    : 'bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 shadow-glow'
+                }`}
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${syncState.status === 'syncing' ? 'animate-spin' : ''}`} />
-                <span>{syncState.status === 'syncing' ? 'Syncing...' : 'Sync Now with Sheet'}</span>
+                <span>
+                  {syncState.status === 'syncing'
+                    ? t('syncing')
+                    : syncState.pendingChangesCount > 0
+                    ? `${t('syncNowWithSheet')} (${syncState.pendingChangesCount} ${t('unsyncedChanges')})`
+                    : t('syncNowWithSheet')}
+                </span>
               </button>
 
               <button
@@ -140,7 +150,7 @@ export const GoogleSheetSync: React.FC = () => {
                 className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700/80 text-xs font-semibold transition"
                 title="Fetch latest updates from Google Sheet"
               >
-                <span>Pull Latest Updates</span>
+                <span>{t('pullFromSheet')}</span>
               </button>
             </div>
           )}
@@ -196,7 +206,7 @@ export const GoogleSheetSync: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isTesting || !urlInput.trim()}
-                  className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-glow transition disabled:opacity-50 whitespace-nowrap"
+                  className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-glow transition disabled:opacity-50 whitespace-nowrap cursor-pointer"
                 >
                   {isTesting ? t('syncing') : t('testAndConnect')}
                 </button>
@@ -204,7 +214,7 @@ export const GoogleSheetSync: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleDisconnect}
-                    className="px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-950/40 transition whitespace-nowrap"
+                    className="px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-950/40 transition whitespace-nowrap cursor-pointer"
                   >
                     {t('disconnect')}
                   </button>
@@ -232,24 +242,39 @@ export const GoogleSheetSync: React.FC = () => {
           )}
         </form>
 
-        {/* Auto Sync Toggle */}
-        <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between">
-          <div>
-            <span className="text-xs font-semibold text-white block">{t('backgroundAutoSync')}</span>
-            <span className="text-[11px] text-slate-400">
-              {t('backgroundAutoSyncDesc')}
-            </span>
+        {/* Sync Mode Selector / Auto Sync Toggle */}
+        <div className="pt-4 border-t border-slate-800/80 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="pr-4">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-white block">
+                  {settings.autoSync ? t('backgroundAutoSync') : t('manualSyncMode')}
+                </span>
+                <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md border ${
+                  settings.autoSync
+                    ? 'bg-indigo-950/80 text-indigo-300 border-indigo-500/40'
+                    : 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40'
+                }`}>
+                  {settings.autoSync ? 'Auto-Sync Active' : 'Manual Mode (Default)'}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                {settings.autoSync
+                  ? t('backgroundAutoSyncDesc')
+                  : t('manualSyncModeDesc')}
+              </p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer shrink-0">
+              <input
+                type="checkbox"
+                checked={settings.autoSync}
+                disabled={!settings.sheetUrl}
+                onChange={e => updateSettings({ autoSync: e.target.checked })}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600 peer-disabled:opacity-40"></div>
+            </label>
           </div>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={settings.autoSync}
-              disabled={!settings.sheetUrl}
-              onChange={e => updateSettings({ autoSync: e.target.checked })}
-              className="sr-only peer"
-            />
-            <div className="w-10 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600 peer-disabled:opacity-40"></div>
-          </label>
         </div>
       </div>
 

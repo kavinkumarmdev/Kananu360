@@ -267,9 +267,9 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [settings]);
 
-  // Non-blocking initial background pull from Google Sheets on app startup
+  // Startup background pull ONLY if user explicitly enabled autoSync
   useEffect(() => {
-    if (settings.sheetUrl && settings.autoSync !== false) {
+    if (settings.sheetUrl && settings.autoSync === true) {
       GoogleSheetApiService.fetchAllData(settings.sheetUrl)
         .then(res => {
           if (res.status === 'success' && res.data) {
@@ -297,7 +297,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, []);
 
-  // Automatic debounced sync whenever any data updates
+  // Track local updates and only auto-sync if autoSync is explicitly enabled
   const isInitialMount = useRef(true);
   const syncDebounceTimer = useRef<any>(null);
 
@@ -307,7 +307,17 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       return;
     }
 
-    if (!settings.sheetUrl || settings.autoSync === false) return;
+    // When autoSync is not enabled, DO NOT auto-push to Google Sheet.
+    // Instead, track pending un-synced changes so the user can click sync when ready.
+    if (!settings.autoSync) {
+      setSyncState(prev => ({
+        ...prev,
+        pendingChangesCount: (prev.pendingChangesCount || 0) + 1,
+      }));
+      return;
+    }
+
+    if (!settings.sheetUrl) return;
 
     if (syncDebounceTimer.current) {
       clearTimeout(syncDebounceTimer.current);

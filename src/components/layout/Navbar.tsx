@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useFinance } from '../../context/FinanceContext';
 import { useAuth } from '../../context/AuthContext';
-import { Cloud, CloudOff, RefreshCw, Plus, Settings as SettingsIcon, Menu, Globe, Lock, LogOut, Sun, Moon } from 'lucide-react';
+import { CloudOff, RefreshCw, Plus, Settings as SettingsIcon, Menu, Globe, Lock, LogOut, Sun, Moon, UploadCloud, CheckCircle2 } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatters';
 import { BrandLogo } from '../common/BrandLogo';
 
@@ -61,9 +61,9 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Center: Net Worth badge on large screens */}
-        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/60 border border-slate-800 text-xs shrink-0">
+        <div className="hidden lg:flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900/70 border border-slate-800/90 text-xs shrink-0 shadow-sm">
           <span className="text-slate-400 font-medium">{t('netWorth')}:</span>
-          <span className={`font-bold ${totalNetWorth >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+          <span className={`font-black tracking-tight ${totalNetWorth >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
             {formatCurrency(totalNetWorth, settings.currency)}
           </span>
         </div>
@@ -104,40 +104,64 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
             disabled={syncState.status === 'syncing'}
             title={
-              settings.sheetUrl
-                ? `Google Sheet Sync: ${syncState.status}. Click to sync now.`
-                : 'Google Sheet not connected. Click to connect now.'
-            }
-            className={`flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-xl text-xs font-medium border transition-all shrink-0 ${
-              syncState.status === 'syncing'
-                ? 'bg-indigo-950/60 border-indigo-600/60 text-indigo-300'
-                : syncState.status === 'success'
-                ? 'bg-emerald-950/40 border-emerald-600/40 text-emerald-300 hover:bg-emerald-950/60'
+              !settings.sheetUrl
+                ? (settings.language === 'ta' ? 'கூகிள் தாள் இணைக்கப்படவில்லை. அமைக்க கிளிக் செய்க.' : 'Google Sheet not connected. Click to connect now.')
+                : syncState.status === 'syncing'
+                ? (settings.language === 'ta' ? 'கூகிள் தாளுடன் ஒத்திசைகிறது...' : 'Syncing data to Google Sheet...')
+                : syncState.pendingChangesCount > 0
+                ? (settings.language === 'ta' ? `${syncState.pendingChangesCount} புதிய மாற்றங்கள் உள்ளன. கூகிள் தாளில் சேமிக்க கிளிக் செய்க!` : `${syncState.pendingChangesCount} changes waiting to sync. Click to upload to Google Sheet now!`)
                 : syncState.status === 'error'
-                ? 'bg-rose-950/40 border-rose-600/40 text-rose-300 hover:bg-rose-950/60'
-                : 'bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200'
+                ? (settings.language === 'ta' ? 'ஒத்திசைவு தோல்வியடைந்தது. மீண்டும் முயற்சிக்க கிளிக் செய்க.' : `Sync error: ${syncState.errorMessage || 'Failed'}. Click to retry.`)
+                : (settings.language === 'ta' ? `கூகிள் தாள் ஒத்திசைக்கப்பட்டது (${syncState.lastSynced || ''}). மீண்டும் ஒத்திசைக்க கிளிக் செய்க.` : `Google Sheet Synced (${syncState.lastSynced || 'Up to date'}). Click to sync again.`)
+            }
+            className={`flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-xl text-xs font-semibold border transition-all shrink-0 cursor-pointer ${
+              syncState.status === 'syncing'
+                ? 'bg-indigo-950/70 border-indigo-500/60 text-indigo-200 shadow-md shadow-indigo-500/20'
+                : !settings.sheetUrl
+                ? 'bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200'
+                : syncState.pendingChangesCount > 0
+                ? 'bg-gradient-to-r from-amber-500/20 via-indigo-950/60 to-indigo-900/40 border-amber-500/70 text-amber-300 hover:border-amber-400 shadow-md shadow-amber-500/10 pulse-glow-amber'
+                : syncState.status === 'error'
+                ? 'bg-rose-950/60 border-rose-500/50 text-rose-300 hover:bg-rose-950/80'
+                : 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300 hover:bg-emerald-950/60 shadow-sm'
             }`}
           >
             {syncState.status === 'syncing' ? (
               <RefreshCw className="w-3.5 h-3.5 animate-spin text-indigo-400 shrink-0" />
-            ) : settings.sheetUrl ? (
-              <Cloud className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            ) : (
+            ) : !settings.sheetUrl ? (
               <CloudOff className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+            ) : syncState.pendingChangesCount > 0 ? (
+              <UploadCloud className="w-3.5 h-3.5 text-amber-400 shrink-0 animate-pulse" />
+            ) : syncState.status === 'error' ? (
+              <CloudOff className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+            ) : (
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
             )}
+
             <span className="hidden md:inline whitespace-nowrap">
               {syncState.status === 'syncing'
                 ? t('syncing')
-                : settings.sheetUrl
-                ? t('sheetSynced')
-                : t('localOffline')}
+                : !settings.sheetUrl
+                ? t('localOffline')
+                : syncState.pendingChangesCount > 0
+                ? `${t('clickToSync')} (${syncState.pendingChangesCount})`
+                : syncState.status === 'error'
+                ? (settings.language === 'ta' ? 'மீண்டும் முயற்சிக்க' : 'Retry Sync')
+                : t('sheetSynced')}
             </span>
+
+            {/* Mobile notification badge if pending changes exist */}
+            {settings.sheetUrl && syncState.pendingChangesCount > 0 && (
+              <span className="md:hidden flex items-center justify-center w-4 h-4 rounded-full bg-amber-500 text-slate-950 text-[10px] font-black">
+                {syncState.pendingChangesCount > 9 ? '9+' : syncState.pendingChangesCount}
+              </span>
+            )}
           </button>
 
           {/* Quick Add Button */}
           <button
             onClick={onOpenQuickAdd}
-            className="flex items-center justify-center gap-1.5 p-2 sm:px-3.5 sm:py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white text-xs sm:text-sm font-semibold shadow-glow transition-all transform hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap shrink-0"
+            className="flex items-center justify-center gap-1.5 p-2 sm:px-3.5 sm:py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white text-xs sm:text-sm font-bold shadow-glow transition-all transform hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap shrink-0"
             title={t('record')}
           >
             <Plus size={16} className="shrink-0" />

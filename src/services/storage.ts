@@ -89,7 +89,7 @@ export const INITIAL_SETTINGS: AppSettings = {
   currency: 'INR',
   currencySymbol: '₹',
   sheetUrl: 'https://script.google.com/macros/s/AKfycby0xwUvO4h4KM12hanisp5OhNdjR4c6ca-AianDSgQL1siiiLfAb91lS1iLEvFN8sc/exec',
-  autoSync: true,
+  autoSync: false,
   theme: 'dark',
   userName: 'Kavin',
   language: 'ta',
@@ -406,8 +406,9 @@ export const StorageService = {
       const parsed = JSON.parse(data);
       if (!parsed.sheetUrl) {
         parsed.sheetUrl = INITIAL_SETTINGS.sheetUrl;
-        parsed.autoSync = true;
-        localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(parsed));
+      }
+      if (typeof parsed.autoSync !== 'boolean') {
+        parsed.autoSync = false;
       }
       return { ...INITIAL_SETTINGS, ...parsed };
     } catch {

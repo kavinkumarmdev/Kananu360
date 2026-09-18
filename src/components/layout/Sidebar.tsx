@@ -32,7 +32,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isMobileOpen,
   setIsMobileOpen,
 }) => {
-  const { transactions, accounts, budgets, goals, loans, savings, pendingWageTransactions, settings, updateSettings, t } = useFinance();
+  const { transactions, accounts, budgets, goals, loans, savings, pendingWageTransactions, settings, updateSettings, syncState, syncWithGoogleSheet, t } = useFinance();
   const { user, logout } = useAuth();
 
   const toggleLanguage = () => {
@@ -74,16 +74,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] font-medium transition-all group ${
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] font-semibold transition-all group ${
                   isActive
-                    ? 'bg-gradient-to-r from-indigo-600/90 to-indigo-700/80 text-white shadow-lg shadow-indigo-500/20 border border-indigo-400/30'
-                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-900/60 border border-transparent'
+                    ? 'bg-gradient-to-r from-indigo-600 via-indigo-600 to-indigo-700 text-white shadow-md shadow-indigo-500/25 border border-indigo-400/30'
+                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-900/70 border border-transparent'
                 }`}
               >
                 <div className="flex items-center gap-2.5 min-w-0 pr-1">
                   <Icon
                     className={`w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${
-                      isActive ? 'text-white' : item.highlight ? 'text-amber-400' : 'text-slate-400'
+                      isActive ? 'text-white' : item.highlight ? 'text-amber-400' : 'text-slate-400 group-hover:text-indigo-400'
                     }`}
                   />
                   <span className="whitespace-nowrap">{t(item.labelKey)}</span>
@@ -91,10 +91,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                 {item.badge !== null && item.badge !== undefined && (
                   <span
-                    className={`text-[11px] px-2 py-0.5 rounded-full font-semibold shrink-0 ml-1.5 ${
+                    className={`text-[11px] px-2 py-0.5 rounded-full font-bold shrink-0 ml-1.5 ${
                       isActive
-                        ? 'bg-indigo-900/80 text-indigo-100'
-                        : 'bg-slate-800 text-slate-400 group-hover:bg-slate-700'
+                        ? 'bg-indigo-950/80 text-indigo-100 border border-indigo-400/20'
+                        : 'bg-slate-800/90 text-slate-400 group-hover:bg-slate-700'
                     }`}
                   >
                     {item.badge}
@@ -115,14 +115,46 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Footer System Status & User Profile */}
       <div className="space-y-2.5 pt-4 border-t border-slate-800/80">
         {/* Live System Indicator */}
-        <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-900/60 border border-slate-800 text-xs">
-          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+        <div
+          onClick={() => {
+            if (settings.sheetUrl) {
+              syncWithGoogleSheet('push');
+            } else {
+              setActiveTab('settings');
+            }
+          }}
+          className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-slate-900/70 hover:bg-slate-900 border border-slate-800/90 text-xs transition cursor-pointer group shadow-sm"
+          title={settings.sheetUrl ? 'Click to sync now with Google Sheet' : 'Click to connect Google Sheet'}
+        >
+          <div
+            className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+              syncState.status === 'syncing'
+                ? 'bg-indigo-400 animate-spin'
+                : !settings.sheetUrl
+                ? 'bg-slate-500'
+                : syncState.pendingChangesCount > 0
+                ? 'bg-amber-400 animate-pulse'
+                : 'bg-emerald-400'
+            }`}
+          />
           <div className="min-w-0 flex-1">
-            <span className="text-[11px] font-bold text-slate-200 block truncate">
-              {settings.language === 'ta' ? 'நேரலை மேகக்கணி இணைப்பு' : 'Live Cloud Database'}
+            <span className="text-[11px] font-bold text-slate-200 block truncate group-hover:text-white">
+              {!settings.sheetUrl
+                ? (settings.language === 'ta' ? 'உள்ளிருப்பு சேமிப்பு (ஆஃப்லைன்)' : 'Local Storage Mode')
+                : syncState.status === 'syncing'
+                ? (settings.language === 'ta' ? 'ஒத்திசைகிறது...' : 'Syncing with Sheet...')
+                : syncState.pendingChangesCount > 0
+                ? (settings.language === 'ta' ? `${syncState.pendingChangesCount} மாற்றங்கள் ஒத்திசைக்க தயார்` : `${syncState.pendingChangesCount} changes waiting to sync`)
+                : settings.autoSync
+                ? (settings.language === 'ta' ? 'தானியங்கி ஒத்திசைவு செயலில்' : 'Auto-Sync Mode Active')
+                : (settings.language === 'ta' ? 'கையேடு ஒத்திசைவு முறை' : 'Manual Sync Mode')}
             </span>
-            <span className="text-[10px] text-emerald-400/90 block truncate">
-              {settings.lastSyncedAt ? `Auto-Synced ${settings.lastSyncedAt}` : 'Active & Synced'}
+            <span className="text-[10px] text-slate-400 block truncate">
+              {settings.sheetUrl && syncState.pendingChangesCount > 0
+                ? (settings.language === 'ta' ? 'கிளிக் செய்து ஒத்திசைக்கவும்' : 'Click to push changes')
+                : settings.lastSyncedAt
+                ? `Last: ${settings.lastSyncedAt}`
+                : 'Ready'}
             </span>
           </div>
         </div>

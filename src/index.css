@@ -41,6 +41,26 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    position: relative;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120vw;
+    height: 520px;
+    background: radial-gradient(ellipse 70% 320px at 50% -10%, rgba(99, 102, 241, 0.16), rgba(16, 185, 129, 0.04) 45%, transparent 75%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  html.light body::before,
+  [data-theme='light'] body::before {
+    background: radial-gradient(ellipse 70% 320px at 50% -10%, rgba(99, 102, 241, 0.08), rgba(16, 185, 129, 0.03) 45%, transparent 75%);
   }
 }
 
@@ -49,27 +69,28 @@
    ===================================================================== */
 .glass-panel {
   background: var(--card-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--card-border);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4);
-  transition: all 0.2s ease;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 html.light .glass-panel,
 [data-theme='light'] .glass-panel {
   background: #ffffff !important;
   border-color: #e2e8f0 !important;
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(15, 23, 42, 0.03) !important;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(15, 23, 42, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
 }
 
 .glass-panel-hover {
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-panel-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5), 0 0 15px rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: 0 18px 38px -10px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 html.light .glass-panel-hover:hover,
@@ -77,6 +98,34 @@ html.light .glass-panel-hover:hover,
   background: #ffffff !important;
   border-color: rgba(99, 102, 241, 0.4) !important;
   box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.08), 0 0 15px rgba(99, 102, 241, 0.1) !important;
+}
+
+@keyframes pulseGlowAmber {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+    border-color: rgba(245, 158, 11, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(245, 158, 11, 0.55);
+    border-color: rgba(245, 158, 11, 0.85);
+  }
+}
+
+.pulse-glow-amber {
+  animation: pulseGlowAmber 2.2s infinite ease-in-out;
+}
+
+@keyframes pulseGlowIndigo {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(99, 102, 241, 0.6);
+  }
+}
+
+.pulse-glow-indigo {
+  animation: pulseGlowIndigo 2.2s infinite ease-in-out;
 }
 
 .glass-dropdown {
