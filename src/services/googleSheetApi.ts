@@ -13,7 +13,7 @@ export interface SheetFullPayload {
   livestock?: FarmLivestock[];
   workers?: FarmWorker[];
   familyMembers?: FamilyMember[];
-  settings?: Partial<AppSettings>;
+  settings?: Partial<AppSettings> | Partial<AppSettings>[];
 }
 
 export interface SheetApiResponse<T = any> {
